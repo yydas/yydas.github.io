@@ -1,0 +1,17 @@
+---
+import Hello from "../components/home/hello.astro";
+import Projects from "../components/home/projects.astro";
+import LinkCard from "../components/link-card.astro";
+import Separator from "../components/home/separator.astro";
+import Writings from "../components/home/writings.astro";
+import Layout from "../layouts/main.astro";
+---
+
+<Layout title="咻设计">
+  <Hello></Hello>
+  <Separator text="Check out my projects" />
+  <Projects />
+  <LinkCard />
+  <Separator text="Some of my writing" />
+  <Writings />
+</Layout>

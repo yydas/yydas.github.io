@@ -1,0 +1,377 @@
+---
+import Header from "../components/header.astro";
+---
+
+<!doctype html>
+<html lang="zh-CN">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>作品集</title>
+        <style>
+            html {
+                cursor:
+                    url("data:image/png;base64,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")
+                        16 16,
+                    auto;
+            }
+        </style>
+        <!-- Used to add dark mode right away, adding here prevents any flicker -->
+        <script is:inline>
+            if (typeof Storage !== "undefined") {
+                if (
+                    localStorage.getItem("dark_mode") &&
+                    localStorage.getItem("dark_mode") == "true"
+                ) {
+                    document.documentElement.classList.add("dark");
+                }
+            }
+        </script>
+        <link
+            rel="icon"
+            type="image/x-icon"
+            href="../assets/images/favicon.png"
+        />
+        <script src="../assets/css/main.css"></script>
+        <Fragment set:html={import.meta.env.HEADER_INJECT} />
+    </head>
+    <body class="antialiased bg-white dark:bg-neutral-950">
+        <Header />
+        <canvas
+            class="photobox fixed bottom-0 left-0 z-10 w-full h-dvh min-h-lvh"
+        ></canvas>
+        <script>
+            import gsap from "gsap";
+            window.gsap = gsap;
+            interface ImageData {
+                img: HTMLImageElement;
+                x: number;
+                y: number;
+            }
+
+            const photobox = {
+                // canvas对象容器
+                canvas: document.querySelector(
+                    ".photobox",
+                ) as HTMLCanvasElement,
+                // canvas 2d上下文
+                content: {} as CanvasRenderingContext2D,
+                // 图片的总数
+                img_total: 28,
+                // 图片排列的总列数
+                row_max: 7,
+                // 图片排列的总行数
+                line_max: 4,
+                // 源图片的实际宽高，这里因为图片太大，会占据画布太多位置，故除以一个数让其缩小
+                img_width: Math.floor(702),
+                img_height: Math.floor(1248),
+                // 图片间的上下左右间距
+                img_margin: 20,
+                // 所有图片纵横排列之后的总宽高，用作图片超出范围的界限判定
+                total_width: 0,
+                total_height: 0,
+                // 图片数据，用以储存每张图片的源以及xy坐标位置
+                img_data: [] as ImageData[],
+                // 当前画布是否可以移动
+                if_movable: false,
+                // 拖动速度
+                velocity: { x: 0, y: 0 },
+                // 减速系数
+                deceleration: 0.95,
+                // 记录鼠标按下或触摸的时间
+                mousedownTime: 0,
+                // 加速度系数
+                acceleration: 1.8,
+                // 圆角半径
+                borderRadius: 48,
+                // 上一次触摸的位置
+                lastTouch: { x: 0, y: 0 },
+
+                // 初始化
+                init() {
+                    this.content = this.canvas.getContext("2d")!;
+                    // 总宽度等于横向排列的所有图片的宽度和间隔相加，最后一张图片没有右间隔，故需要减去一个间隔，总高度同理
+                    this.total_width =
+                        this.row_max * (this.img_width + this.img_margin) -
+                        this.img_margin;
+                    this.total_height =
+                        this.line_max * (this.img_height + this.img_margin) -
+                        this.img_margin;
+                    this.resize();
+                    this.create_events();
+                    this.create_img_data();
+                },
+                resize() {
+                    // 获取设备像素比
+                    const dpr = window.devicePixelRatio || 1;
+                    // 修改canvas宽高以填充满页面
+                    this.canvas.width = this.canvas.clientWidth * dpr;
+                    this.canvas.height = this.canvas.clientHeight * dpr;
+                    // 修改canvas宽高之后，画布内容会被清除，故需要调用一次move_imgs函数，重新生成所有图片
+                    if (this.img_data) this.move_imgs(0, 0);
+                    // 启用图像平滑处理，以获得更好的图像质量
+                    this.content.imageSmoothingEnabled = true;
+                },
+                // 创建图片数据即img_data
+                create_img_data() {
+                    this.img_data = [];
+                    for (let i = 0; i < this.img_total; i++) {
+                        let img = new Image();
+                        img.src = `/assets/images/photos/photo (${i + 1}).png`;
+                        // 当图片加载完成之后，创建对应图片数据并添加到img_data中
+                        img.onload = () => {
+                            // 计算该序号图片处于第几行第几列
+                            let col_index = i % this.row_max;
+                            let line_index = Math.floor(i / this.row_max);
+                            // 通过行列序号算出xy坐标
+                            let x =
+                                col_index * (this.img_width + this.img_margin);
+                            let y =
+                                line_index *
+                                (this.img_height + this.img_margin);
+                            // 将其添加到img_data中
+                            this.img_data.push({ img, x, y });
+                            // 创建完成之后就绘制一次，确保在进入页面的时候，图片会全部显示
+                            this.drawImageWithRoundedCorners(
+                                img,
+                                x,
+                                y,
+                                this.img_width,
+                                this.img_height,
+                                this.borderRadius,
+                            );
+                        };
+                    }
+                },
+                // 绘制圆角矩形
+                drawRoundedRect(
+                    ctx: CanvasRenderingContext2D,
+                    x: number,
+                    y: number,
+                    width: number,
+                    height: number,
+                    radius: number,
+                ) {
+                    ctx.beginPath();
+                    ctx.moveTo(x + radius, y);
+                    ctx.lineTo(x + width - radius, y);
+                    ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+                    ctx.lineTo(x + width, y + height - radius);
+                    ctx.quadraticCurveTo(
+                        x + width,
+                        y + height,
+                        x + width - radius,
+                        y + height,
+                    );
+                    ctx.lineTo(x + radius, y + height);
+                    ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+                    ctx.lineTo(x, y + radius);
+                    ctx.quadraticCurveTo(x, y, x + radius, y);
+                    ctx.closePath();
+                },
+                // 绘制带圆角的图片
+                drawImageWithRoundedCorners(
+                    img: HTMLImageElement,
+                    x: number,
+                    y: number,
+                    width: number,
+                    height: number,
+                    radius: number,
+                ) {
+                    this.content.save();
+                    this.drawRoundedRect(
+                        this.content,
+                        x,
+                        y,
+                        width,
+                        height,
+                        radius,
+                    );
+                    this.content.clip();
+                    this.content.drawImage(img, x, y, width, height);
+                    this.content.restore();
+                },
+                // 绑定所有监听事件
+                create_events() {
+                    window.addEventListener("resize", () => this.resize());
+
+                    // 鼠标事件处理
+                    this.canvas.addEventListener(
+                        "mousedown",
+                        (e: MouseEvent) => {
+                            this.if_movable = true;
+                            this.mousedownTime = Date.now();
+                            this.velocity = { x: 0, y: 0 };
+                            this.lastTouch = { x: e.clientX, y: e.clientY };
+                        },
+                    );
+
+                    this.canvas.addEventListener("mouseup", (e: MouseEvent) => {
+                        this.if_movable = false;
+                        let clickDuration = Date.now() - this.mousedownTime;
+                        if (clickDuration < 150) {
+                            this.check_img(e.clientX, e.clientY);
+                        }
+                    });
+
+                    this.canvas.addEventListener("mouseleave", () => {
+                        this.if_movable = false;
+                    });
+
+                    this.canvas.addEventListener(
+                        "mousemove",
+                        (e: MouseEvent) => {
+                            if (!this.if_movable) return;
+
+                            // 记录当前速度，并应用加速度
+                            this.velocity.x =
+                                (e.clientX - this.lastTouch.x) *
+                                this.acceleration *
+                                2;
+                            this.velocity.y =
+                                (e.clientY - this.lastTouch.y) *
+                                this.acceleration *
+                                4;
+                            this.lastTouch = { x: e.clientX, y: e.clientY };
+
+                            // 确保加速度不会无限增大
+                            this.acceleration = Math.min(
+                                this.acceleration * 1.01,
+                                2,
+                            );
+
+                            this.move_imgs(this.velocity.x, this.velocity.y);
+                        },
+                    );
+
+                    // 触摸事件处理
+                    this.canvas.addEventListener(
+                        "touchstart",
+                        (e: TouchEvent) => {
+                            this.if_movable = true;
+                            this.mousedownTime = Date.now();
+                            this.velocity = { x: 0, y: 0 };
+                            const touch = e.touches[0];
+                            this.lastTouch = {
+                                x: touch.clientX,
+                                y: touch.clientY,
+                            };
+                        },
+                    );
+
+                    this.canvas.addEventListener(
+                        "touchend",
+                        (e: TouchEvent) => {
+                            this.if_movable = false;
+                            let clickDuration = Date.now() - this.mousedownTime;
+                            if (clickDuration < 150) {
+                                const touch = e.changedTouches[0];
+                                this.check_img(touch.clientX, touch.clientY);
+                            }
+                        },
+                    );
+
+                    this.canvas.addEventListener(
+                        "touchmove",
+                        (e: TouchEvent) => {
+                            if (!this.if_movable) return;
+
+                            const touch = e.touches[0];
+                            // 记录当前速度，并应用加速度
+                            this.velocity.x =
+                                (touch.clientX - this.lastTouch.x) *
+                                this.acceleration *
+                                4;
+                            this.velocity.y =
+                                (touch.clientY - this.lastTouch.y) *
+                                this.acceleration *
+                                4;
+                            this.lastTouch = {
+                                x: touch.clientX,
+                                y: touch.clientY,
+                            };
+
+                            // 确保加速度不会无限增大
+                            this.acceleration = Math.min(
+                                this.acceleration * 1.01,
+                                2,
+                            );
+
+                            this.move_imgs(this.velocity.x, this.velocity.y);
+                        },
+                    );
+
+                    // 使用 requestAnimationFrame 来实现惯性滚动
+                    const animate = () => {
+                        if (!this.if_movable) {
+                            this.velocity.x *= this.deceleration;
+                            this.velocity.y *= this.deceleration;
+                            if (
+                                Math.abs(this.velocity.x) > 0.1 ||
+                                Math.abs(this.velocity.y) > 0.1
+                            ) {
+                                this.move_imgs(
+                                    this.velocity.x,
+                                    this.velocity.y,
+                                );
+                            } else {
+                                // 重置加速度
+                                this.acceleration = 1.1;
+                            }
+                        }
+                        requestAnimationFrame(animate);
+                    };
+                    animate();
+                },
+                move_imgs(x: number, y: number) {
+                    this.content.clearRect(
+                        0,
+                        0,
+                        this.canvas.width,
+                        this.canvas.height,
+                    );
+                    this.img_data.forEach((img, index) => {
+                        let parallax = ((index % this.row_max) + 10) * 0.02;
+                        img.x += x;
+                        if (img.x > this.total_width - this.img_width)
+                            img.x -= this.total_width + this.img_margin;
+                        if (img.x < -this.img_width)
+                            img.x += this.total_width + this.img_margin;
+                        img.y += y * parallax;
+                        if (img.y > this.total_height - this.img_height)
+                            img.y -= this.total_height + this.img_margin;
+                        if (img.y < -this.img_height)
+                            img.y += this.total_height + this.img_margin;
+                        this.drawImageWithRoundedCorners(
+                            img.img,
+                            img.x,
+                            img.y,
+                            this.img_width,
+                            this.img_height,
+                            this.borderRadius,
+                        );
+                    });
+                },
+
+                check_img(x: number, y: number) {
+                    let dpr = window.devicePixelRatio || 1; // 获取设备像素比
+                    let touchX = x * dpr; // 将点击或触摸点坐标转换为相对于高分辨率画布的坐标
+                    let touchY = y * dpr;
+
+                    let img = this.img_data.find(
+                        (img) =>
+                            touchX >= img.x &&
+                            touchX < img.x + this.img_width &&
+                            touchY >= img.y &&
+                            touchY < img.y + this.img_height,
+                    );
+                    if (img) console.log(img, img.img);
+                },
+            };
+            window.addEventListener("load", () => {
+                photobox.init();
+            });
+        </script>
+        <script src="../assets/js/main.js"></script>
+    </body>
+</html>
