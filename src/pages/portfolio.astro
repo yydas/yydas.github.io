@@ -32,7 +32,8 @@ import Header from "../components/header.astro";
             type="image/x-icon"
             href="../assets/images/favicon.png"
         />
-        <script src="../assets/css/main.css"></script>
+        <link href="../assets/css/main.css"></link>
+        <script src="../assets/js/main.js"></script>
         <Fragment set:html={import.meta.env.HEADER_INJECT} />
     </head>
     <body class="antialiased bg-white dark:bg-neutral-950">
@@ -41,8 +42,6 @@ import Header from "../components/header.astro";
             class="photobox fixed bottom-0 left-0 z-10 w-full h-dvh min-h-lvh"
         ></canvas>
         <script>
-            import gsap from "gsap";
-            window.gsap = gsap;
             interface ImageData {
                 img: HTMLImageElement;
                 x: number;
@@ -117,7 +116,8 @@ import Header from "../components/header.astro";
                     this.img_data = [];
                     for (let i = 0; i < this.img_total; i++) {
                         let img = new Image();
-                        img.src = `/assets/images/photos/photo (${i + 1}).png`;
+                        img.src = `https://astro.s3.bitiful.net/blog/portfolio/photo (${i + 1}).jpeg`;
+                        // img.src = `/assets/images/photos/photo (${i + 1}).png`;
                         // 当图片加载完成之后，创建对应图片数据并添加到img_data中
                         img.onload = () => {
                             // 计算该序号图片处于第几行第几列
@@ -372,6 +372,5 @@ import Header from "../components/header.astro";
                 photobox.init();
             });
         </script>
-        <script src="../assets/js/main.js"></script>
     </body>
 </html>
