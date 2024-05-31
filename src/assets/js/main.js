@@ -13,10 +13,10 @@ const stickyClassesContainer = [
 ];
 const unstickyClassesContainer = ["border-transparent"];
 let headerElement = null;
-
+let message = false; // 全局变量
 document.addEventListener("DOMContentLoaded", () => {
 	headerElement = document.getElementById("header");
-
+	message = headerElement.getAttribute('data-message') == 'true';
 	if (
 		localStorage.getItem("dark_mode") &&
 		localStorage.getItem("dark_mode") === "true"
@@ -50,7 +50,7 @@ window.stickyHeaderFuncionality = () => {
 };
 
 window.evaluateHeaderPosition = () => {
-	if (window.scrollY > 16) {
+	if (message==true || window.scrollY > 16) {
 		headerElement.firstElementChild.classList.add(...stickyClassesContainer);
 		headerElement.firstElementChild.classList.remove(
 			...unstickyClassesContainer,

@@ -32,12 +32,11 @@ import Header from "../components/header.astro";
             type="image/x-icon"
             href="../assets/images/favicon.png"
         />
-        <link href="../assets/css/main.css" />
-        <script src="../assets/js/main.js"></script>
+        <script src="../assets/css/main.css"></script>
         <Fragment set:html={import.meta.env.HEADER_INJECT} />
     </head>
     <body class="antialiased bg-white dark:bg-neutral-950">
-        <Header />
+        <Header message={true}/>
         <div id="modal" class="hidden fixed z-[100] w-full h-full left-0 top-0 bg-[rgba(0,0,0,0.8)]">
             <span id="closeBtn" class=" absolute top-8 right-8 text-4xl text-white cursor-pointer">&times;</span>
             <img id="modalImg" class=" absolute left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] max-w-[80%] max-h-[80%]" src="" alt="Image" />
@@ -406,5 +405,7 @@ import Header from "../components/header.astro";
                 };
             }
         </script>
+        <script src="../assets/js/main.js"></script>
+        <Fragment set:html={import.meta.env.FOOTER_INJECT} />
     </body>
 </html>
