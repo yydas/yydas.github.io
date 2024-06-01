@@ -39,7 +39,7 @@ import Header from "../components/header.astro";
         <Header message={true}/>
         <div id="modal" class="hidden fixed z-[100] w-full h-full left-0 top-0 bg-[rgba(0,0,0,0.8)]">
             <span id="closeBtn" class=" absolute top-8 right-8 text-4xl text-white cursor-pointer">&times;</span>
-            <img id="modalImg" class=" absolute left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] max-w-[80%] max-h-[80%]" src="" alt="Image" />
+            <img id="modalImg" class=" absolute left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] max-w-[80%] max-h-[80%]" src=""/>
         </div>
         <canvas class="photobox fixed bottom-0 left-0 w-full h-dvh min-h-lvh"
         ></canvas>
@@ -217,7 +217,7 @@ import Header from "../components/header.astro";
                     this.canvas.addEventListener("mouseup", (e: MouseEvent) => {
                         this.if_movable = false;
                         let clickDuration = Date.now() - this.mousedownTime;
-                        if (clickDuration < 150) {
+                        if (clickDuration < 120) {
                             this.check_img(e.clientX, e.clientY);
                         }
                     });
@@ -272,7 +272,7 @@ import Header from "../components/header.astro";
                         (e: TouchEvent) => {
                             this.if_movable = false;
                             let clickDuration = Date.now() - this.mousedownTime;
-                            if (clickDuration < 150) {
+                            if (clickDuration < 100) {
                                 const touch = e.changedTouches[0];
                                 this.check_img(touch.clientX, touch.clientY);
                             }

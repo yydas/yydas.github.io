@@ -8,10 +8,10 @@ const { logo, dates, role, company, description } = Astro.props;
   >
     <img src={logo} alt={company} class="h-8" />
   </div>
-  <div class="flex flex-row justify-between">
-    <h3 class="my-1 text-lg font-bold dark:text-neutral-100">{role}</h3>
+  <div class="flex flex-row justify-between my-1 lg:my-2">
+    <h3 class="text-lg font-bold dark:text-neutral-100">{role}</h3>
     <p
-      class="text-xs uppercase text-neutral-400 dark:text-neutral-500 trackign-widest"
+      class="text-xs leading-7 uppercase text-neutral-400 dark:text-neutral-500 trackign-widest"
     >
       {dates}
     </p>
