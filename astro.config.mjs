@@ -8,6 +8,6 @@ export default defineConfig({
   integrations: [tailwind(), react()],
   site: 'https://yydas.github.io',
   server:{
-    host: '192.168.31.17',
+    host: '0.0.0.0',
   }
 });
