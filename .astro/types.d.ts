@@ -168,6 +168,13 @@ declare module 'astro:content' {
   collection: "post";
   data: InferEntrySchema<"post">
 } & { render(): Render[".md"] };
+"工作文件/javascript.md": {
+	id: "工作文件/javascript.md";
+  slug: "工作文件/javascript";
+  body: string;
+  collection: "post";
+  data: InferEntrySchema<"post">
+} & { render(): Render[".md"] };
 };
 
 	};
@@ -178,5 +185,5 @@ declare module 'astro:content' {
 
 	type AnyEntryMap = ContentEntryMap & DataEntryMap;
 
-	export type ContentConfig = typeof import("./../src/content/config.js");
+	export type ContentConfig = typeof import("../src/content/config.js");
 }
