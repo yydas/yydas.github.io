@@ -36,25 +36,39 @@ import Header from "../components/header.astro";
         <Fragment set:html={import.meta.env.HEADER_INJECT} />
     </head>
     <body class="antialiased bg-white dark:bg-neutral-950">
-        <Header message={true}/>
-        <div id="modal" class="hidden fixed z-[100] w-full h-full left-0 top-0 bg-[rgba(0,0,0,0.8)]">
-            <span id="closeBtn" class=" absolute top-8 right-8 text-4xl text-white cursor-pointer">&times;</span>
-            <img id="modalImg" class=" absolute left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] max-w-[80%] max-h-[80%]" src=""/>
+        <Header message={true} />
+        <div
+            id="modal"
+            class="hidden fixed z-[100] w-full h-full left-0 top-0 bg-[rgba(0,0,0,0.8)]"
+        >
+            <span
+                id="closeBtn"
+                class="absolute top-8 right-8 text-4xl text-white cursor-pointer"
+                >&times;</span
+            >
+            <img
+                id="modalImg"
+                class="absolute left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] max-w-[80%] max-h-[80%]"
+                src=""
+            />
         </div>
         <canvas class="photobox fixed bottom-0 left-0 w-full h-dvh min-h-lvh"
         ></canvas>
         <script>
-            interface ImageData {
+            interface PhotoData {
                 img: HTMLImageElement;
+                x: number;
+                y: number;
+            }
+
+            interface Velocity {
                 x: number;
                 y: number;
             }
 
             const photobox = {
                 // canvas对象容器
-                canvas: document.querySelector(
-                    ".photobox",
-                ) as HTMLCanvasElement,
+                canvas: {} as HTMLCanvasElement,
                 // canvas 2d上下文
                 content: {} as CanvasRenderingContext2D,
                 // 图片的总数
@@ -63,33 +77,35 @@ import Header from "../components/header.astro";
                 row_max: 7,
                 // 图片排列的总行数
                 line_max: 4,
-                // 源图片的实际宽高，这里因为图片太大，会占据画布太多位置，故除以一个数让其缩小
                 img_width: Math.floor(702),
                 img_height: Math.floor(1248),
                 // 图片间的上下左右间距
                 img_margin: 20,
+                // 圆角半径
+                borderRadius: 48,
                 // 所有图片纵横排列之后的总宽高，用作图片超出范围的界限判定
                 total_width: 0,
                 total_height: 0,
                 // 图片数据，用以储存每张图片的源以及xy坐标位置
-                img_data: [] as ImageData[],
+                img_data: [] as PhotoData[],
                 // 当前画布是否可以移动
                 if_movable: false,
-                // 拖动速度
-                velocity: { x: 0, y: 0 },
+                velocity: { x: 0, y: 0 } as Velocity,
                 // 减速系数
                 deceleration: 0.94,
                 // 记录鼠标按下或触摸的时间
                 mousedownTime: 0,
                 // 加速度系数
                 acceleration: 1.8,
-                // 圆角半径
-                borderRadius: 48,
                 // 上一次触摸的位置
                 lastTouch: { x: 0, y: 0 },
-
                 // 初始化
                 init() {
+                    this.canvas = document.querySelector(
+                        ".photobox",
+                    ) as HTMLCanvasElement;
+                    if (!this.canvas)
+                        throw new Error("Canvas element not found");
                     this.content = this.canvas.getContext("2d")!;
                     // 总宽度等于横向排列的所有图片的宽度和间隔相加，最后一张图片没有右间隔，故需要减去一个间隔，总高度同理
                     this.total_width =
@@ -101,6 +117,7 @@ import Header from "../components/header.astro";
                     this.resize();
                     this.create_events();
                     this.create_img_data();
+                    console.log(this.img_data);
                 },
                 resize() {
                     // 获取设备像素比
@@ -114,42 +131,37 @@ import Header from "../components/header.astro";
                     this.content.imageSmoothingEnabled = true;
                 },
                 // 创建图片数据即img_data
-                async create_img_data() {
+                create_img_data() {
                     this.img_data = [];
-                    const promises = [];
-
                     for (let i = 0; i < this.img_total; i++) {
-                        promises.push(
-                            new Promise((resolve, reject) => {
-                                let img = new Image();
-                                img.src = `https://astro.s3.bitiful.net/blog/portfolio/photo (${i + 1}).jpeg`;
-                                // img.src = `/assets/images/photos/photo (${i + 1}).png`;
-                                img.onload = () => {
-                                    let col_index = i % this.row_max;
-                                    let line_index = Math.floor(
-                                        i / this.row_max,
-                                    );
-                                    let x =
-                                        col_index *
-                                        (this.img_width + this.img_margin);
-                                    let y =
-                                        line_index *
-                                        (this.img_height + this.img_margin);
-                                    this.img_data.push({ img, x, y });
-                                    this.drawImageWithRoundedCorners(
-                                        img,
-                                        x,
-                                        y,
-                                        this.img_width,
-                                        this.img_height,
-                                        this.borderRadius,
-                                    );
-                                };
-                            }),
-                        );
-                    }
+                        let img = new Image();
+                        img.src = `https://astro.s3.bitiful.net/blog/portfolio/photo (${i + 1}).jpeg`;
+                        // img.src = `/assets/images/photos/photo (${i + 1}).png`;
+                        // 当图片加载完成之后，创建对应图片数据并添加到img_data中
+                        img.onload = () => {
+                            // 计算该序号图片处于第几行第几列
+                            let col_index = i % this.row_max;
+                            let line_index = Math.floor(i / this.row_max);
+                            // 通过行列序号算出xy坐标
+                            let x =
+                                col_index * (this.img_width + this.img_margin);
+                            let y =
+                                line_index *
+                                (this.img_height + this.img_margin);
+                            // 将其添加到img_data中
+                            // 创建完成之后就绘制一次，确保在进入页面的时候，图片会全部显示
+                            this.drawImageWithRoundedCorners(
+                                img,
+                                x,
+                                y,
+                                this.img_width,
+                                this.img_height,
+                                this.borderRadius,
+                            );
 
-                    await Promise.all(promises);
+                            this.img_data.push({ img, x, y });
+                        };
+                    }
                 },
                 // 绘制圆角矩形
                 drawRoundedRect(
@@ -201,113 +213,15 @@ import Header from "../components/header.astro";
                 },
                 // 绑定所有监听事件
                 create_events() {
-                    window.addEventListener("resize", () => this.resize());
-
-                    // 鼠标事件处理
-                    this.canvas.addEventListener(
-                        "mousedown",
-                        (e: MouseEvent) => {
-                            this.if_movable = true;
-                            this.mousedownTime = Date.now();
-                            this.velocity = { x: 0, y: 0 };
-                            this.lastTouch = { x: e.clientX, y: e.clientY };
-                        },
-                    );
-
-                    this.canvas.addEventListener("mouseup", (e: MouseEvent) => {
-                        this.if_movable = false;
-                        let clickDuration = Date.now() - this.mousedownTime;
-                        if (clickDuration < 120) {
-                            this.check_img(e.clientX, e.clientY);
-                        }
+                    window.addEventListener("resize", () => {
+                        this.resize();
                     });
 
-                    this.canvas.addEventListener("mouseleave", () => {
-                        this.if_movable = false;
-                    });
+                    // 绑定电脑端的鼠标事件
+                    this.bind_mouse_events();
 
-                    this.canvas.addEventListener(
-                        "mousemove",
-                        (e: MouseEvent) => {
-                            if (!this.if_movable) return;
-
-                            // 记录当前速度，并应用加速度
-                            this.velocity.x =
-                                (e.clientX - this.lastTouch.x) *
-                                this.acceleration *
-                                2;
-                            this.velocity.y =
-                                (e.clientY - this.lastTouch.y) *
-                                this.acceleration *
-                                8;
-                            this.lastTouch = { x: e.clientX, y: e.clientY };
-
-                            // 确保加速度不会无限增大
-                            this.acceleration = Math.min(
-                                this.acceleration * 1.1,
-                                2,
-                            );
-
-                            this.move_imgs(this.velocity.x, this.velocity.y);
-                        },
-                    );
-
-                    // 触摸事件处理
-                    this.canvas.addEventListener(
-                        "touchstart",
-                        (e: TouchEvent) => {
-                            this.if_movable = true;
-                            this.mousedownTime = Date.now();
-                            this.velocity = { x: 0, y: 0 };
-                            const touch = e.touches[0];
-                            this.lastTouch = {
-                                x: touch.clientX,
-                                y: touch.clientY,
-                            };
-                        },
-                    );
-
-                    this.canvas.addEventListener(
-                        "touchend",
-                        (e: TouchEvent) => {
-                            this.if_movable = false;
-                            let clickDuration = Date.now() - this.mousedownTime;
-                            if (clickDuration < 100) {
-                                const touch = e.changedTouches[0];
-                                this.check_img(touch.clientX, touch.clientY);
-                            }
-                        },
-                    );
-
-                    this.canvas.addEventListener(
-                        "touchmove",
-                        (e: TouchEvent) => {
-                            if (!this.if_movable) return;
-
-                            const touch = e.touches[0];
-                            // 记录当前速度，并应用加速度
-                            this.velocity.x =
-                                (touch.clientX - this.lastTouch.x) *
-                                this.acceleration *
-                                2;
-                            this.velocity.y =
-                                (touch.clientY - this.lastTouch.y) *
-                                this.acceleration *
-                                8;
-                            this.lastTouch = {
-                                x: touch.clientX,
-                                y: touch.clientY,
-                            };
-
-                            // 确保加速度不会无限增大
-                            this.acceleration = Math.min(
-                                this.acceleration * 1.1,
-                                2,
-                            );
-
-                            this.move_imgs(this.velocity.x, this.velocity.y);
-                        },
-                    );
+                    // 绑定移动端的触摸事件
+                    this.bind_touch_events();
 
                     // 使用 requestAnimationFrame 来实现惯性滚动
                     const animate = () => {
@@ -331,25 +245,112 @@ import Header from "../components/header.astro";
                     };
                     animate();
                 },
+                // 绑定电脑端的鼠标事件
+                bind_mouse_events() {
+                    this.canvas.addEventListener("mousedown", (e) => {
+                        this.if_movable = true;
+                        this.mousedownTime = Date.now();
+                        this.velocity = { x: 0, y: 0 };
+                        this.lastTouch = { x: e.clientX, y: e.clientY };
+                    });
+                    this.canvas.addEventListener("mouseup", (e) => {
+                        this.if_movable = false;
+                        if (Date.now() - this.mousedownTime < 120) {
+                            this.check_img(e.clientX, e.clientY);
+                        }
+                    });
+                    this.canvas.addEventListener("mouseleave", () => {
+                        this.if_movable = false;
+                    });
+                    this.canvas.addEventListener("mousemove", (e) => {
+                        if (!this.if_movable) return;
+                        this.velocity.x =
+                            (e.clientX - this.lastTouch.x) *
+                            this.acceleration *
+                            2;
+                        this.velocity.y =
+                            (e.clientY - this.lastTouch.y) *
+                            this.acceleration *
+                            8;
+                        this.lastTouch = { x: e.clientX, y: e.clientY };
+
+                        this.acceleration = Math.min(
+                            this.acceleration * 1.1,
+                            2,
+                        );
+
+                        this.move_imgs(this.velocity.x, this.velocity.y);
+                    });
+                },
+                // 绑定移动端的触摸事件
+                bind_touch_events() {
+                    this.canvas.addEventListener("touchstart", (e) => {
+                        if (e.touches.length == 1) {
+                            const touch = e.touches[0];
+                            this.if_movable = true;
+                            this.mousedownTime = Date.now();
+                            this.velocity = { x: 0, y: 0 };
+                            this.lastTouch = {
+                                x: touch.clientX,
+                                y: touch.clientY,
+                            };
+                        }
+                    });
+                    this.canvas.addEventListener("touchend", (e) => {
+                        this.if_movable = false;
+                        if (Date.now() - this.mousedownTime < 50) {
+                            const touch = e.changedTouches[0];
+                            this.check_img(touch.clientX, touch.clientY);
+                        }
+                    });
+                    this.canvas.addEventListener("touchmove", (e) => {
+                        if (!this.if_movable || e.touches.length != 1) return;
+                        e.preventDefault();
+
+                        const touch = e.touches[0];
+                        this.velocity.x =
+                            (touch.clientX - this.lastTouch.x) *
+                            this.acceleration *
+                            2;
+                        this.velocity.y =
+                            (touch.clientY - this.lastTouch.y) *
+                            this.acceleration *
+                            8;
+                        this.lastTouch = { x: touch.clientX, y: touch.clientY };
+
+                        this.acceleration = Math.min(
+                            this.acceleration * 1.1,
+                            2,
+                        );
+
+                        this.move_imgs(this.velocity.x, this.velocity.y);
+                    });
+                },
+
+                // 移动所有图片
                 move_imgs(x: number, y: number) {
+                    // 清除content，重新进行绘制
                     this.content.clearRect(
                         0,
                         0,
                         this.canvas.width,
                         this.canvas.height,
                     );
+                    // 遍历所有图片，对每一张图片进行移动，并进行判断
                     this.img_data.forEach((img, index) => {
-                        let parallax = ((index % this.row_max) + 20) * 0.02;
+                        let parallax = ((index % this.row_max) + 20) * 0.03;
                         img.x += x;
                         if (img.x > this.total_width - this.img_width)
                             img.x -= this.total_width + this.img_margin;
                         if (img.x < -this.img_width)
                             img.x += this.total_width + this.img_margin;
+
                         img.y += y * parallax;
                         if (img.y > this.total_height - this.img_height)
                             img.y -= this.total_height + this.img_margin;
                         if (img.y < -this.img_height)
                             img.y += this.total_height + this.img_margin;
+
                         this.drawImageWithRoundedCorners(
                             img.img,
                             img.x,
@@ -360,7 +361,7 @@ import Header from "../components/header.astro";
                         );
                     });
                 },
-
+                // 获取当前鼠标点击位置下的对应图片数据
                 check_img(x: number, y: number) {
                     let dpr = window.devicePixelRatio || 1; // 获取设备像素比
                     let touchX = x * dpr; // 将点击或触摸点坐标转换为相对于高分辨率画布的坐标
@@ -387,9 +388,9 @@ import Header from "../components/header.astro";
                     }
                 },
             };
-            window.addEventListener("load", () => {
-                photobox.init();
-            });
+
+            // 初始化
+            photobox.init();
             // 关闭模态弹窗
             const modal = document.getElementById("modal");
             const closeBtn = document.getElementById("closeBtn");
