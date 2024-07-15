@@ -40,7 +40,7 @@ function Search({ searchList }) {
           id="search"
           value={query}
           onChange={handleOnSearch}
-          className="w-full h-10 px-3 text-sm border border-dashed rounded-md focus:ring-0 focus:outline-black border-neutral-400 dark:border-neutral-600 dark:bg-neutral-800 dark:placeholder-neutral-400 dark:text-white"
+          className="w-full h-10 px-3 text-sm outline-none border border-dashed rounded-md focus:border-solid focus:ring-0 focus:border-black dark:focus:borders-white border-neutral-400 dark:border-neutral-600 dark:bg-neutral-800 dark:placeholder-neutral-400 dark:text-white hover:border-neutral-800 dark:hover:border-neutral-100 duration-200"
           placeholder="Search for blog posts..."
         />
       </div>
