@@ -45,7 +45,7 @@ function Search({ searchList }) {
         />
       </div>
       {query.length > 1 && (
-        <div className="my-4">
+        <div className="my-4 text-neutral-600 dark:text-neutral-400">
           Found {posts.length} {posts.length === 1 ? "result" : "results"} for "
           {query}"
         </div>
@@ -64,11 +64,11 @@ function Search({ searchList }) {
               class="relative group flex flex-col sm:flex-row gap-0.5"
             >
               <div class="flex flex-col">
-                <p class="mb-1 font-semibold dark:text-zinc-300 text-zinc-950 group-hover:text-zinc-400 dark:group-hover:text-green transition-colors">
+                <p class="mb-1 font-semibold dark:text-neutral-100 text-zinc-950 group-hover:text-zinc-400 dark:group-hover:text-green transition-colors">
                   {data.data.title}
                 </p>
 
-                <p class="leading-relaxed max-w-prose">{data.data.description}</p>
+                <p class="leading-relaxed max-w-prose text-neutral-600 dark:text-neutral-400">{data.data.description}</p>
               </div>
             </a>
           </li>
