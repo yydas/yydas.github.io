@@ -1,5 +1,4 @@
 ---
-layout: ../../layouts/post.astro
 title: Code to Canvas
 description: This is a post about how creating and developing a blog for yourself can be beneficial and how building your audience is important.
 dateFormatted: 2023-05-20

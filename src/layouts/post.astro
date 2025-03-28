@@ -1,36 +1,116 @@
 ---
 import Layout from "./main.astro";
 import Pagination from "src/components/Pagination.astro";
-const { frontmatter } = Astro.props;
+import TableOfContents from "src/components/TableOfContents.astro";
+import PostList from "src/components/PostList.astro";
+
+interface Props {
+  entry: any;
+  headings: any[];
+}
+
+const { entry, headings } = Astro.props;
 ---
 
-<Layout title={frontmatter.title}>
+<Layout title={entry.data.title}>
   <main
-    class="relative z-30 max-w-4xl pb-1 mx-auto mt-10 bg-white dark:bg-neutral-950 md:rounded-t-md text-neutral-900"
+    class="relative z-30 max-w-[90rem] pb-1 mx-auto mt-10 bg-white dark:bg-neutral-950 md:rounded-t-md text-neutral-900"
   >
-    <div
-      class="relative flex flex-col px-5 pt-6 border-t border-b-0 md:border-r md:border-l md:pt-20 lg:px-0 justify-stretch md:rounded-t-2xl border-neutral-200 dark:border-neutral-800"
-    >
-      <div
-        class="absolute top-0 left-0 hidden w-px h-full mt-1 -translate-x-px md:block bg-gradient-to-b from-transparent to-white dark:to-neutral-950"
-      >
-      </div>
-      <div
-        class="absolute top-0 right-0 hidden w-px h-full mt-1 translate-x-px md:block bg-gradient-to-b from-transparent to-white dark:to-neutral-950"
-      >
-      </div>
-      <h1
-        class="w-full max-w-2xl mx-auto text-3xl font-bold leading-tight tracking-tighter text-left md:mb-12 md:text-4xl dark:text-neutral-100 lg:text-5xl md:leading-none"
-      >
-        {frontmatter.title}
-      </h1>
-    </div>
+    <div class="flex">
+      <!-- Left Sidebar - Post List -->
+      <aside class="hidden xl:block w-64 min-h-screen">
+        <div class="post-list-container">
+          <h3 class="text-lg font-semibold mb-4 dark:text-neutral-200">文章列表</h3>
+          <PostList />
+        </div>
+      </aside>
 
-    <article
-      class="w-full max-w-2xl mx-auto mb-20 prose-sm prose px-7 lg:px-0 lg:prose-lg dark:prose-invert"
-    >
-      <slot />
-    </article>
-    <Pagination />
+      <!-- Main Content -->
+      <div class="flex-1">
+        <div
+          class="relative flex flex-col px-5 pt-6 border-t border-b-0 md:border-r md:border-l md:pt-20 lg:px-0 justify-stretch md:rounded-t-2xl border-neutral-200 dark:border-neutral-800"
+        >
+          <div
+            class="absolute top-0 left-0 hidden w-px h-full mt-1 -translate-x-px md:block bg-gradient-to-b from-transparent to-white dark:to-neutral-950"
+          >
+          </div>
+          <div
+            class="absolute top-0 right-0 hidden w-px h-full mt-1 translate-x-px md:block bg-gradient-to-b from-transparent to-white dark:to-neutral-950"
+          >
+          </div>
+          <h1
+            class="w-full max-w-2xl mx-auto text-3xl font-bold leading-tight tracking-tighter text-left md:mb-12 md:text-4xl dark:text-neutral-100 lg:text-5xl md:leading-none"
+          >
+            {entry.data.title}
+          </h1>
+        </div>
+
+        <div class="flex gap-8 px-4 lg:px-8">
+          <article
+            class="w-full max-w-2xl mx-auto mb-20 prose-sm prose lg:prose-lg dark:prose-invert"
+          >
+            <slot />
+          </article>
+          
+          <!-- Right Sidebar - Table of Contents -->
+          <aside class="hidden lg:block w-64 pt-8">
+            <div class="sticky top-20">
+              <h3 class="text-lg font-semibold mb-4 dark:text-neutral-200">页面导航</h3>
+              <TableOfContents headings={headings} />
+            </div>
+          </aside>
+        </div>
+        
+        <Pagination />
+      </div>
+    </div>
   </main>
 </Layout>
+
+<style>
+  :global(.prose h1[id], .prose h2[id], .prose h3[id], .prose h4[id], .prose h5[id], .prose h6[id]) {
+    scroll-margin-top: 4rem;
+  }
+
+  .post-list-container {
+    position: sticky;
+    padding: 1rem;
+    transition: margin-top 0.3s ease;
+  }
+
+  .post-list-container.scrolled {
+    top: 80px;
+  }
+</style>
+
+<script>
+  // 创建一个观察器来检测页面顶部
+  const observer = new IntersectionObserver(
+    ([entry]) => {
+      const postListContainer = document.querySelector('.post-list-container');
+      if (postListContainer) {
+        if (!entry.isIntersecting) {
+          postListContainer.classList.add('scrolled');
+        } else {
+          postListContainer.classList.remove('scrolled');
+        }
+      }
+    },
+    {
+      threshold: 0,
+      rootMargin: "-1px 0px 0px 0px"
+    }
+  );
+
+  // 创建一个顶部标记元素来观察
+  const topMarker = document.createElement('div');
+  topMarker.style.height = '1px';
+  topMarker.style.width = '100%';
+  topMarker.style.position = 'absolute';
+  topMarker.style.top = '0';
+  topMarker.style.left = '0';
+  
+  // 将标记元素添加到文档中并开始观察
+  document.body.prepend(topMarker);
+  observer.observe(topMarker);
+</script>

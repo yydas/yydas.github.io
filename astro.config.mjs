@@ -9,5 +9,13 @@ export default defineConfig({
   site: 'https://yydas.github.io',
   server:{
     host: '0.0.0.0',
+  },
+  content: {
+    collections: {
+      post: {
+        type: 'content',
+        directory: 'src/content/post',
+      },
+    },
   }
 });

@@ -1,0 +1,46 @@
+---
+import { getCollection } from "astro:content";
+
+const posts = await getCollection("post");
+const currentPath = Astro.url.pathname;
+
+// Sort posts by dateFormatted if available, otherwise by title
+const sortedPosts = posts.sort((a, b) => {
+  if (a.data.dateFormatted && b.data.dateFormatted) {
+    return b.data.dateFormatted.getTime() - a.data.dateFormatted.getTime();
+  }
+  return a.data.title.localeCompare(b.data.title);
+});
+---
+
+<nav class="post-list">
+  <ul class="space-y-2">
+    {sortedPosts.map((post) => {
+      const postPath = `/post/${post.slug}`;
+      const isActive = currentPath === postPath;
+      return (
+        <li>
+          <a
+            href={postPath}
+            class:list={[
+              "block py-2 px-3 text-sm rounded-lg transition-colors",
+              "hover:bg-gray-100 dark:hover:bg-neutral-800",
+              {
+                "bg-gray-100 dark:bg-neutral-800 text-blue-500 dark:text-blue-400": isActive,
+                "text-gray-700 dark:text-gray-300": !isActive,
+              },
+            ]}
+          >
+            {post.data.title}
+          </a>
+        </li>
+      )}
+    )}
+  </ul>
+</nav>
+
+<style>
+  .post-list {
+    @apply w-full max-h-[calc(100vh-8rem)] overflow-y-auto;
+  }
+</style> 

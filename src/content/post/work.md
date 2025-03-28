@@ -1,5 +1,4 @@
 ---
-layout: ../../layouts/post.astro
 title: 工作文档
 description: 会议纪要的内容.
 dateFormatted: 2023-05-23

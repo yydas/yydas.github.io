@@ -1,5 +1,4 @@
 ---
-layout: ../../layouts/post.astro
 title: The Perfect Brew for Optimal Productivity
 description: This is a post about how creating and developing a blog for yourself can be beneficial
 dateFormatted: 2023-05-21

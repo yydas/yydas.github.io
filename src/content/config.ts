@@ -1,5 +1,5 @@
 // 1. 从 `astro:content` 导入适当的工具。
-import { z, defineCollection } from 'astro:content';
+import { defineCollection, z } from 'astro:content';
 
 // 2. 定义要用 schema 验证的每个集合。
 const postCollection = defineCollection({

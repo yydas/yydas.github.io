@@ -1,5 +1,7 @@
 ---
 import { getCollection } from "astro:content";
+import PostLayout from "../../layouts/post.astro";
+
 // 1. 为每个集合条目生成一个新路径
 export async function getStaticPaths() {
   const postEntries = await getCollection("post");
@@ -8,19 +10,12 @@ export async function getStaticPaths() {
     props: { entry },
   }));
 }
+
 // 2. 当渲染的时候，你可以直接从属性中得到条目
 const { entry } = Astro.props;
-const { Content } = await entry.render();
+const { Content, headings } = await entry.render();
 ---
 
-<!doctype html>
-<html>
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{entry.data.title}</title>
-  </head>
-  <body>
-    <Content />
-  </body>
-</html>
+<PostLayout entry={entry} headings={headings}>
+  <Content />
+</PostLayout>
