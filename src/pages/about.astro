@@ -3,9 +3,16 @@ import experiences from "../collections/experiences.json";
 import AboutExperience from "../components/about-experience.astro";
 import Layout from "../layouts/main.astro";
 import Button from "../components/button.astro";
+import PasswordProtection from "../components/password-protection.astro";
 ---
 
 <Layout title="About Me">
+  <PasswordProtection
+    password="111"
+    storageKey="about_page_password"
+    title="关于页面访问受限"
+    description="请输入密码以查看关于页面内容"
+  />
   <section class="relative max-w-5xl mx-auto my-12 px-7 lg:px-6 z-10">
     <h2
       class="text-2xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100 sm:text-3xl lg:text-4xl"
@@ -76,7 +83,7 @@ import Button from "../components/button.astro";
             ></span
           >
           <span class="block text-sm"
-            >手机：<a href="tel:你的手机号">131****8615</a></span
+            >手机：<a href="tel:你的手机号">你的手机号</a></span
           >
         </div>
         <div class="mt-6">
@@ -123,7 +130,7 @@ import Button from "../components/button.astro";
     >
       Experience
     </h2>
-    <div class="group/list pl-5 py-10">
+    <div class="pl-5 py-10">
       {
         experiences.map((experience, index) => {
           const isLastItem = index === experiences.length - 1;
@@ -146,11 +153,7 @@ import Button from "../components/button.astro";
       }
     </div>
 
-    <h2
-      class="text-2xl font-bold dark:text-neutral-200"
-    >
-      Let's Connect
-    </h2>
+    <h2 class="text-2xl font-bold dark:text-neutral-200">Let's Connect</h2>
     <p
       class="text-sm leading-6 lg:mb-8 text-gray-600 dark:text-neutral-400 sm:leading-7 lg:leading-8 sm:text-base lg:text-lg sm:mb-40"
     >

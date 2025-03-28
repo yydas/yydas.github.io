@@ -51,18 +51,18 @@ const { entry, headings } = Astro.props;
           >
             <slot />
           </article>
-          
-          <!-- Right Sidebar - Table of Contents -->
-          <aside class="hidden lg:block w-64 pt-8">
-            <div class="sticky top-20">
-              <h3 class="text-lg font-semibold mb-4 dark:text-neutral-200">页面导航</h3>
-              <TableOfContents headings={headings} />
-            </div>
-          </aside>
         </div>
         
         <Pagination />
       </div>
+
+      <!-- Right Sidebar - Table of Contents -->
+      <aside class="hidden xl:block w-64 min-h-screen">
+        <div class="post-list-container">
+          <h3 class="text-lg font-semibold mb-4 dark:text-neutral-200">页面导航</h3>
+          <TableOfContents headings={headings} />
+        </div>
+      </aside>
     </div>
   </main>
 </Layout>
@@ -87,14 +87,14 @@ const { entry, headings } = Astro.props;
   // 创建一个观察器来检测页面顶部
   const observer = new IntersectionObserver(
     ([entry]) => {
-      const postListContainer = document.querySelector('.post-list-container');
-      if (postListContainer) {
+      const postListContainers = document.querySelectorAll('.post-list-container');
+      postListContainers.forEach(container => {
         if (!entry.isIntersecting) {
-          postListContainer.classList.add('scrolled');
+          container.classList.add('scrolled');
         } else {
-          postListContainer.classList.remove('scrolled');
+          container.classList.remove('scrolled');
         }
-      }
+      });
     },
     {
       threshold: 0,
