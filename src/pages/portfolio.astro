@@ -132,24 +132,26 @@ import Header from "../components/header.astro";
                 },
                 // 创建图片数据即img_data
                 create_img_data() {
-                    this.img_data = [];
+                    // Pre-allocate the array with the correct size
+                    this.img_data = new Array(this.img_total);
+                    let loadedCount = 0;
+
                     for (let i = 0; i < this.img_total; i++) {
                         let img = new Image();
                         img.src = `https://astro.s3.bitiful.net/blog/portfolio/photo (${i + 1}).jpeg`;
-                        // img.src = `/assets/images/photos/photo (${i + 1}).png`;
-                        // 当图片加载完成之后，创建对应图片数据并添加到img_data中
+                        
+                        // Calculate position based on index
+                        let col_index = i % this.row_max;
+                        let line_index = Math.floor(i / this.row_max);
+                        let x = col_index * (this.img_width + this.img_margin);
+                        let y = line_index * (this.img_height + this.img_margin);
+
                         img.onload = () => {
-                            // 计算该序号图片处于第几行第几列
-                            let col_index = i % this.row_max;
-                            let line_index = Math.floor(i / this.row_max);
-                            // 通过行列序号算出xy坐标
-                            let x =
-                                col_index * (this.img_width + this.img_margin);
-                            let y =
-                                line_index *
-                                (this.img_height + this.img_margin);
-                            // 将其添加到img_data中
-                            // 创建完成之后就绘制一次，确保在进入页面的时候，图片会全部显示
+                            // Add the image at the correct index
+                            this.img_data[i] = { img, x, y };
+                            loadedCount++;
+
+                            // Draw the image immediately
                             this.drawImageWithRoundedCorners(
                                 img,
                                 x,
@@ -159,7 +161,10 @@ import Header from "../components/header.astro";
                                 this.borderRadius,
                             );
 
-                            this.img_data.push({ img, x, y });
+                            // If all images are loaded, redraw everything
+                            if (loadedCount === this.img_total) {
+                                this.move_imgs(0, 0);
+                            }
                         };
                     }
                 },
