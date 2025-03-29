@@ -3,6 +3,7 @@ import experiences from "../collections/experiences.json";
 import AboutExperience from "../components/about-experience.astro";
 import Layout from "../layouts/main.astro";
 import Button from "../components/button.astro";
+import Programme from "../components/about/programme.astro";
 import PasswordProtection from "../components/password-protection.astro";
 ---
 
@@ -12,7 +13,7 @@ import PasswordProtection from "../components/password-protection.astro";
     storageKey="about_page_password"
     title="关于页面访问受限"
     description="请输入密码以查看关于页面内容"
-  />
+  >
   <section class="relative max-w-5xl mx-auto my-12 px-7 lg:px-6 z-10">
     <h2
       class="text-2xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100 sm:text-3xl lg:text-4xl"
@@ -124,12 +125,12 @@ import PasswordProtection from "../components/password-protection.astro";
       Front-end cutter 🧑🏻‍💻, back-end amateur 🤷🏻‍♂️, operations digging holes person
       🤦🏻‍♂️.
     </p>
-
     <h2
       class="mt-5 mb-2 text-2xl font-bold lg:mt-10 sm:mt-6 dark:text-neutral-200"
     >
       Experience
     </h2>
+    <Programme />
     <div class="pl-5 py-10">
       {
         experiences.map((experience, index) => {
@@ -167,4 +168,5 @@ import PasswordProtection from "../components/password-protection.astro";
       > and I'll be sure to get back to you.
     </p>
   </section>
+  </PasswordProtection>
 </Layout>

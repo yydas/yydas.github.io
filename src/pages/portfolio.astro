@@ -117,6 +117,10 @@ import Header from "../components/header.astro";
                 maxSpeed: 3,
                 // 当前速度
                 currentSpeed: 0,
+                // 添加移动距离阈值
+                move_threshold: 5, // 移动距离阈值（像素）
+                // 记录开始触摸/点击的位置
+                startTouch: { x: 0, y: 0 },
                 // 初始化
                 init() {
                     this.canvas = document.querySelector(
@@ -143,10 +147,14 @@ import Header from "../components/header.astro";
                         // 屏幕宽度大于1920px时，根据屏幕宽度计算图片尺寸
                         this.img_width = Math.floor((screenWidth / 6) - this.img_margin);
                         this.img_height = Math.floor(this.img_width * 16/9);
-                    } else {
-                        // 屏幕宽度小于等于1920px时，使用基础尺寸
+                    } else if (screenWidth > 1080) {
+                        // 屏幕宽度小于等于1080px时，使用基础尺寸
                         this.img_width = this.base_img_width;
                         this.img_height = this.base_img_height;
+                    }else {
+                        // 屏幕宽度小于等于1080px时，使用基础尺寸
+                        this.img_width = 351;
+                        this.img_height = 624;
                     }
                     
                     // 重新计算总宽高
@@ -292,108 +300,19 @@ import Header from "../components/header.astro";
                     };
                     animate();
                 },
-                // 绑定电脑端的鼠标事件
-                bind_mouse_events() {
-                    this.canvas.addEventListener("mousedown", (e) => {
-                        this.if_movable = true;
-                        this.mousedownTime = Date.now();
-                        this.velocity = { x: 0, y: 0 };
-                        this.lastTouch = { x: e.clientX, y: e.clientY };
-                        this.lastTime = Date.now();
-                        this.isAccelerating = false;
-                        this.currentSpeed = 0;
-                    });
-                    this.canvas.addEventListener("mouseup", (e) => {
-                        this.if_movable = false;
-                        if (Date.now() - this.mousedownTime < 120) {
-                            this.check_img(e.clientX, e.clientY);
-                        }
-                        // 开始加速过程
-                        this.isAccelerating = true;
-                        this.accelerationEndTime = Date.now() + this.accelerationDuration;
-                    });
-                    this.canvas.addEventListener("mouseleave", () => {
-                        this.if_movable = false;
-                        // 开始加速过程
-                        this.isAccelerating = true;
-                        this.accelerationEndTime = Date.now() + this.accelerationDuration;
-                    });
-                    this.canvas.addEventListener("mousemove", (e) => {
-                        if (!this.if_movable) return;
-                        
-                        const currentTime = Date.now();
-                        const deltaTime = currentTime - this.lastTime;
-                        const deltaX = e.clientX - this.lastTouch.x;
-                        const deltaY = e.clientY - this.lastTouch.y;
-                        
-                        // 计算速度（像素/毫秒）
-                        this.velocity.x = deltaX / deltaTime;
-                        this.velocity.y = deltaY / deltaTime;
-                        
-                        // 应用加速度
-                        const speed = Math.sqrt(this.velocity.x * this.velocity.x + this.velocity.y * this.velocity.y);
-                        const acceleration = Math.min(speed * 2, 3); // 限制最大加速度
-                        
-                        this.lastTouch = { x: e.clientX, y: e.clientY };
-                        this.lastTime = currentTime;
-                        
-                        this.move_imgs(deltaX * acceleration, deltaY * acceleration);
-                    });
-                },
-                // 绑定移动端的触摸事件
-                bind_touch_events() {
-                    this.canvas.addEventListener("touchstart", (e) => {
-                        if (e.touches.length == 1) {
-                            const touch = e.touches[0];
-                            this.if_movable = true;
-                            this.mousedownTime = Date.now();
-                            this.velocity = { x: 0, y: 0 };
-                            this.lastTouch = {
-                                x: touch.clientX,
-                                y: touch.clientY,
-                            };
-                            this.lastTime = Date.now();
-                            this.isAccelerating = false;
-                            this.currentSpeed = 0;
-                        }
-                    });
-                    this.canvas.addEventListener("touchend", (e) => {
-                        this.if_movable = false;
-                        if (Date.now() - this.mousedownTime < 50) {
-                            const touch = e.changedTouches[0];
-                            this.check_img(touch.clientX, touch.clientY);
-                        }
-                        // 开始加速过程
-                        this.isAccelerating = true;
-                        this.accelerationEndTime = Date.now() + this.accelerationDuration;
-                    });
-                    this.canvas.addEventListener("touchmove", (e) => {
-                        if (!this.if_movable || e.touches.length != 1) return;
-                        e.preventDefault();
-
-                        const touch = e.touches[0];
-                        const currentTime = Date.now();
-                        const deltaTime = currentTime - this.lastTime;
-                        const deltaX = touch.clientX - this.lastTouch.x;
-                        const deltaY = touch.clientY - this.lastTouch.y;
-                        
-                        // 计算速度（像素/毫秒）
-                        this.velocity.x = deltaX / deltaTime;
-                        this.velocity.y = deltaY / deltaTime;
-                        
-                        // 应用加速度
-                        const speed = Math.sqrt(this.velocity.x * this.velocity.x + this.velocity.y * this.velocity.y);
-                        const acceleration = Math.min(speed * 2, 3); // 限制最大加速度
-                        
-                        this.lastTouch = { x: touch.clientX, y: touch.clientY };
-                        this.lastTime = currentTime;
-                        
-                        this.move_imgs(deltaX * acceleration, deltaY * acceleration);
-                    });
-                },
-
                 // 移动所有图片
                 move_imgs(x: number, y: number) {
+                    // 确保x和y是有效数字
+                    if (isNaN(x) || isNaN(y)) {
+                        console.warn('Invalid movement values:', x, y);
+                        return;
+                    }
+
+                    // 应用设备像素比
+                    const dpr = window.devicePixelRatio || 1;
+                    x = x * dpr;
+                    y = y * dpr;
+
                     // 清除content，重新进行绘制
                     this.content.clearRect(
                         0,
@@ -403,6 +322,10 @@ import Header from "../components/header.astro";
                     );
                     // 遍历所有图片，对每一张图片进行移动，并进行判断
                     this.img_data.forEach((img, index) => {
+                        // 确保当前位置是有效数字
+                        img.x = isNaN(img.x) ? 0 : img.x;
+                        img.y = isNaN(img.y) ? 0 : img.y;
+
                         let parallax = ((index % this.row_max) + 20) * 0.03;
                         img.x += x;
                         if (img.x > this.total_width - this.img_width)
@@ -452,6 +375,122 @@ import Header from "../components/header.astro";
                         }
                     }
                 },
+                // 绑定电脑端的鼠标事件
+                bind_mouse_events() {
+                    this.canvas.addEventListener("mousedown", (e) => {
+                        this.if_movable = true;
+                        this.mousedownTime = Date.now();
+                        this.velocity = { x: 0, y: 0 };
+                        this.lastTouch = { x: e.clientX, y: e.clientY };
+                        this.startTouch = { x: e.clientX, y: e.clientY }; // 记录开始位置
+                        this.lastTime = Date.now();
+                        this.isAccelerating = false;
+                        this.currentSpeed = 0;
+                    });
+                    this.canvas.addEventListener("mouseup", (e) => {
+                        this.if_movable = false;
+                        // 计算移动距离
+                        const moveDistance = Math.sqrt(
+                            Math.pow(e.clientX - this.startTouch.x, 2) + 
+                            Math.pow(e.clientY - this.startTouch.y, 2)
+                        );
+                        // 只有当移动距离小于阈值且时间小于120ms时才触发点击
+                        if (moveDistance < this.move_threshold && Date.now() - this.mousedownTime < 120) {
+                            this.check_img(e.clientX, e.clientY);
+                        }
+                        // 开始加速过程
+                        this.isAccelerating = true;
+                        this.accelerationEndTime = Date.now() + this.accelerationDuration;
+                    });
+                    this.canvas.addEventListener("mouseleave", () => {
+                        this.if_movable = false;
+                        // 开始加速过程
+                        this.isAccelerating = true;
+                        this.accelerationEndTime = Date.now() + this.accelerationDuration;
+                    });
+                    this.canvas.addEventListener("mousemove", (e) => {
+                        if (!this.if_movable) return;
+                        
+                        const currentTime = Date.now();
+                        const deltaTime = Math.max(currentTime - this.lastTime, 1); // 确保不会除以0
+                        const deltaX = e.clientX - this.lastTouch.x;
+                        const deltaY = e.clientY - this.lastTouch.y;
+                        
+                        // 计算速度（像素/毫秒）
+                        this.velocity.x = deltaX / deltaTime;
+                        this.velocity.y = deltaY / deltaTime;
+                        
+                        // 应用加速度
+                        const speed = Math.sqrt(this.velocity.x * this.velocity.x + this.velocity.y * this.velocity.y);
+                        const acceleration = Math.min(speed * 2, 3); // 限制最大加速度
+                        
+                        this.lastTouch = { x: e.clientX, y: e.clientY };
+                        this.lastTime = currentTime;
+                        
+                        this.move_imgs(deltaX * acceleration, deltaY * acceleration);
+                    });
+                },
+                // 绑定移动端的触摸事件
+                bind_touch_events() {
+                    this.canvas.addEventListener("touchstart", (e) => {
+                        if (e.touches.length == 1) {
+                            const touch = e.touches[0];
+                            this.if_movable = true;
+                            this.mousedownTime = Date.now();
+                            this.velocity = { x: 0, y: 0 };
+                            this.lastTouch = {
+                                x: touch.clientX,
+                                y: touch.clientY,
+                            };
+                            this.startTouch = { // 记录开始位置
+                                x: touch.clientX,
+                                y: touch.clientY,
+                            };
+                            this.lastTime = Date.now();
+                            this.isAccelerating = false;
+                            this.currentSpeed = 0;
+                        }
+                    });
+                    this.canvas.addEventListener("touchend", (e) => {
+                        this.if_movable = false;
+                        const touch = e.changedTouches[0];
+                        // 计算移动距离
+                        const moveDistance = Math.sqrt(
+                            Math.pow(touch.clientX - this.startTouch.x, 2) + 
+                            Math.pow(touch.clientY - this.startTouch.y, 2)
+                        );
+                        // 只有当移动距离小于阈值且时间小于50ms时才触发点击
+                        if (moveDistance < this.move_threshold && Date.now() - this.mousedownTime < 50) {
+                            this.check_img(touch.clientX, touch.clientY);
+                        }
+                        // 开始加速过程
+                        this.isAccelerating = true;
+                        this.accelerationEndTime = Date.now() + this.accelerationDuration;
+                    });
+                    this.canvas.addEventListener("touchmove", (e) => {
+                        if (!this.if_movable || e.touches.length != 1) return;
+                        e.preventDefault();
+
+                        const touch = e.touches[0];
+                        const currentTime = Date.now();
+                        const deltaTime = Math.max(currentTime - this.lastTime, 1); // 确保不会除以0
+                        const deltaX = touch.clientX - this.lastTouch.x;
+                        const deltaY = touch.clientY - this.lastTouch.y;
+                        
+                        // 计算速度（像素/毫秒）
+                        this.velocity.x = deltaX / deltaTime;
+                        this.velocity.y = deltaY / deltaTime;
+                        
+                        // 应用加速度
+                        const speed = Math.sqrt(this.velocity.x * this.velocity.x + this.velocity.y * this.velocity.y);
+                        const acceleration = Math.min(speed * 2, 3); // 限制最大加速度
+                        
+                        this.lastTouch = { x: touch.clientX, y: touch.clientY };
+                        this.lastTime = currentTime;
+                        
+                        this.move_imgs(deltaX * acceleration, deltaY * acceleration);
+                    });
+                },
             };
 
             // 初始化
@@ -459,6 +498,43 @@ import Header from "../components/header.astro";
             // 关闭模态弹窗
             const modal = document.getElementById("modal");
             const closeBtn = document.getElementById("closeBtn");
+
+            // 添加页面滚动缓动效果
+            let currentScroll = 0;
+            let targetScroll = 0;
+            let isScrolling = false;
+            const smoothFactor = 0.1; // 缓动系数，值越小动画越平滑
+
+            // 监听滚动事件
+            window.addEventListener('scroll', () => {
+                targetScroll = window.scrollY;
+                if (!isScrolling) {
+                    isScrolling = true;
+                    smoothScroll();
+                }
+            });
+
+            // 平滑滚动函数
+            function smoothScroll() {
+                // 计算当前滚动位置与目标位置的差值
+                const diff = targetScroll - currentScroll;
+                
+                // 如果差值足够小，直接设置到目标位置
+                if (Math.abs(diff) < 0.1) {
+                    currentScroll = targetScroll;
+                    isScrolling = false;
+                    return;
+                }
+
+                // 使用缓动公式更新当前位置
+                currentScroll += diff * smoothFactor;
+
+                // 应用滚动位置
+                window.scrollTo(0, currentScroll);
+
+                // 继续动画
+                requestAnimationFrame(smoothScroll);
+            }
 
             if (modal && closeBtn) {
                 closeBtn.onclick = () => {

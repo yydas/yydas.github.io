@@ -14,35 +14,25 @@ const nextPost = posts[currentIndex + 1];
 const prevPost = posts[currentIndex - 1];
 ---
 
-<aside class="flex flex-col pl-4 pr-4 sm:flex-row sm:pb-10 gap-4 w-full">
+<nav class="flex justify-between items-center w-full px-4 py-4 text-sm">
   {
-    nextPost && (
-      <a
-        href={`/post/${nextPost.slug}/`}
-        class="group flex-1 text-sm flex flex-col grow p-4 rounded-lg border border-zinc-300 dark:border-zinc-700 dark:hover:border-zinc-400 hover:border-zinc
-        -300 transition-all dark:hover:bg-zinc-600/20 hover:bg-zinc-100 hover:text-zinc-800 hover:border-zinc-500 hover:bg-zinc-600/20"
-      >
-        <p class="mb-1 dark:text-zinc-300 text-zinc-700">
-          &larr; 上一篇
-        </p>
-        <p class="font-semibold dark:text-zinc-300 text-zinc-700">
-          {nextPost.data.title}
-        </p>
+    nextPost ? (
+      <a href={`/post/${nextPost.slug}/`} class="flex items-center gap-2 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200">
+        <span>←</span>
+        <span>{nextPost.data.title}</span>
       </a>
+    ) : (
+      <span></span>
     )
   }
   {
-    prevPost && (
-      <a
-        href={`/post/${prevPost.slug}/`}
-        class="group flex-1 text-sm flex flex-col text-right grow p-4 rounded-lg border border-zinc-300 dark:border-zinc-700 dark:hover:border-zinc-400 hover:border-zinc
-        -300 transition-all dark:hover:bg-zinc-600/20 hover:bg-zinc-100 hover:text-zinc-800 hover:border-zinc-500 hover:bg-zinc-600/20"
-      >
-        <p class="mb-1 dark:text-zinc-300 text-zinc-700">下一篇 &rarr;</p>
-        <p class="font-semibold dark:text-zinc-300 text-zinc-700">
-          {prevPost.data.title}
-        </p>
+    prevPost ? (
+      <a href={`/post/${prevPost.slug}/`} class="flex items-center gap-2 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200">
+        <span>{prevPost.data.title}</span>
+        <span>→</span>
       </a>
+    ) : (
+      <span></span>
     )
   }
-</aside>
+</nav>

@@ -12,12 +12,12 @@ const { headings } = Astro.props;
 ---
 
 <nav class="toc">
-  <ul class="space-y-2 text-sm">
+  <ul class="space-y-2 text-sm text-neutral-500 dark:text-neutral-400">
     {
       headings.map((heading) => (
         <li
           class:list={[
-            "hover:text-blue-500 dark:hover:text-blue-400",
+            "hover:text-neutral-600 dark:hover:text-neutral-400",
             { "ml-3": heading.depth === 3 },
             { "ml-6": heading.depth === 4 },
             { "ml-9": heading.depth === 5 },
@@ -47,9 +47,9 @@ const { headings } = Astro.props;
         
         if (entry.isIntersecting) {
           document.querySelectorAll(".toc a").forEach((link) => {
-            link.classList.remove("text-blue-500", "dark:text-blue-400", "font-medium");
+            link.classList.remove("text-neutral-950", "dark:text-neutral-50", "font-semibold");
           });
-          tocLink?.classList.add("text-blue-500", "dark:text-blue-400", "font-medium");
+          tocLink?.classList.add("text-neutral-950", "dark:text-neutral-50", "font-semibold");
         }
       });
     },

@@ -11,31 +11,79 @@ const sortedPosts = posts.sort((a, b) => {
   }
   return a.data.title.localeCompare(b.data.title);
 });
+
+// 获取当前路径，如果是首页则使用第一条文章的路径
+const effectivePath = currentPath === '/' ? `/post/${sortedPosts[0]?.slug}/` : currentPath;
+
+// 将文章按文件夹分组
+const groupedPosts = sortedPosts.reduce((groups, post) => {
+  const parts = post.slug.split('/');
+  const folder = parts.length > 1 ? parts[0] : '其他';
+  if (!groups[folder]) {
+    groups[folder] = [];
+  }
+  groups[folder].push(post);
+  return groups;
+}, {} as Record<string, typeof posts>);
+
+// 对分组进行排序
+const sortedGroups = Object.entries(groupedPosts).sort(([a], [b]) => {
+  if (a === '其他') return -1;
+  if (b === '其他') return 1;
+  return a.localeCompare(b);
+});
+
+// 规范化路径，移除末尾的斜杠并解码 URL
+const normalizePath = (path: string) => decodeURIComponent(path.replace(/\/$/, ''));
+
+// 检查路径是否匹配
+const isPathMatch = (current: string, target: string) => {
+  const normalizedCurrent = normalizePath(current);
+  const normalizedTarget = normalizePath(target);
+  return normalizedCurrent === normalizedTarget;
+};
+
 ---
 
 <nav class="post-list">
-  <ul class="space-y-2">
-    {sortedPosts.map((post) => {
-      const postPath = `/post/${post.slug}`;
-      const isActive = currentPath === postPath;
-      return (
-        <li>
-          <a
-            href={postPath}
-            class:list={[
-              "block py-2 px-3 text-sm rounded-lg transition-colors",
-              "hover:bg-gray-100 dark:hover:bg-neutral-800",
+  <ul>
+    {sortedGroups.map(([folder, posts]) => (
+      <>
+        {folder !== '其他' && (
+          <li class="py-2 px-3">
+            <h3 class="text-sm font-semibold text-neutral-900 dark:text-neutral-200">{folder}</h3>
+          </li>
+        )}
+        {posts.map((post) => {
+          const postPath = `/post/${post.slug}/`;
+          const normalizedPostPath = normalizePath(postPath);
+          const isActive = isPathMatch(effectivePath, postPath);
+          return (
+            <li class:list={[
+              "border-l-2",
               {
-                "bg-gray-100 dark:bg-neutral-800 text-blue-500 dark:text-blue-400": isActive,
-                "text-gray-700 dark:text-gray-300": !isActive,
-              },
-            ]}
-          >
-            {post.data.title}
-          </a>
-        </li>
-      )}
-    )}
+                "border-neutral-950 dark:border-neutral-50": isActive,
+                "border-neutral-200 dark:border-neutral-800": !isActive
+              }
+            ]}>
+              <a
+                href={postPath}
+                class:list={[
+                  "block py-2 px-3 text-sm",
+                  "hover:bg-gray-100 dark:hover:bg-neutral-900 hover:text-neutral-950 dark:hover:text-neutral-500",
+                  {
+                    "bg-neutral-200 dark:bg-neutral-800 text-neutral-950 dark:text-neutral-50 font-semibold": isActive,
+                    "text-neutral-500": !isActive,
+                  },
+                ]}
+              >
+                {post.data.title}
+              </a>
+            </li>
+          )}
+        )}
+      </>
+    ))}
   </ul>
 </nav>
 
