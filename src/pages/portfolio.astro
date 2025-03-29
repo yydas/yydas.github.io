@@ -78,8 +78,8 @@ import Header from "../components/header.astro";
                 // 图片排列的总行数
                 line_max: 4,
                 // 基础图片尺寸（屏幕宽度小于1920px时使用）
-                base_img_width: 300,
-                base_img_height: 533,
+                base_img_width: 576,
+                base_img_height: 1024,
                 // 图片间的上下左右间距
                 img_margin: 20,
                 // 圆角半径
@@ -147,14 +147,13 @@ import Header from "../components/header.astro";
                         // 屏幕宽度大于1920px时，根据屏幕宽度计算图片尺寸
                         this.img_width = Math.floor((screenWidth / 6) - this.img_margin);
                         this.img_height = Math.floor(this.img_width * 16/9);
-                    } else if (screenWidth > 1080) {
-                        // 屏幕宽度小于等于1080px时，使用基础尺寸
-                        this.img_width = this.base_img_width;
-                        this.img_height = this.base_img_height;
-                    }else {
-                        // 屏幕宽度小于等于1080px时，使用基础尺寸
+                    } else if (screenWidth <= 768) {
+                        // 移动端尺寸
                         this.img_width = 351;
                         this.img_height = 624;
+                    } else {
+                        this.img_width = this.base_img_width;
+                        this.img_height = this.base_img_height;
                     }
                     
                     // 重新计算总宽高
