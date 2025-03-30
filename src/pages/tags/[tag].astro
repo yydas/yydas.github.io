@@ -1,0 +1,173 @@
+---
+import Layout from "../../layouts/main.astro";
+import { getCollection } from "astro:content";
+
+export async function getStaticPaths() {
+  const posts = await getCollection("post");
+  const projects = await getCollection("project");
+  
+  // 合并所有标签
+  const allTags = [...new Set([
+    ...posts.flatMap(post => post.data.tags || []),
+    ...projects.flatMap(project => project.data.tags || [])
+  ])];
+  
+  return allTags.map(tag => ({
+    params: { tag },
+    props: { 
+      posts: posts.filter(post => post.data.tags?.includes(tag)),
+      projects: projects.filter(project => project.data.tags?.includes(tag))
+    },
+  }));
+}
+
+const { posts, projects } = Astro.props;
+const { tag } = Astro.params;
+
+// 计算阅读时间的函数
+function calculateReadingTime(content: string) {
+  const wordsPerMinute = 200;
+  const words = content.split(/\s+/).length;
+  const minutes = Math.ceil(words / wordsPerMinute);
+  return `${minutes} 分钟`;
+}
+
+// 格式化日期
+const formatter = new Intl.DateTimeFormat('zh-CN', { 
+  year: 'numeric',
+  month: 'numeric',
+  day: 'numeric'
+});
+---
+
+<Layout title={`内容标签 #${tag}`}>
+  <main class="max-w-4xl mx-auto px-6 py-12">
+    <h1 class="text-2xl font-bold mb-12 flex items-center gap-3">
+      标签内容
+      <span class="inline-flex items-center rounded-full bg-neutral-100 dark:bg-neutral-800 px-3 py-1 text-2xl font-normal">
+        #{tag}
+      </span>
+    </h1>
+    
+    {posts.length > 0 && (
+      <section class="mb-16">
+        <h2 class="text-xl font-semibold mb-6 text-neutral-900 dark:text-neutral-100">文章</h2>
+        <div class="space-y-12">
+          {posts.map((post) => (
+            <article class="group relative">
+              <a href={`/post/${post.slug}`} class="block">
+                <div class="flex flex-col space-y-4">
+                  <h2 class="text-2xl font-bold text-neutral-900 dark:text-neutral-100 transition-colors">
+                    {post.data.title}
+                  </h2>
+                  <p class="text-neutral-600 dark:text-neutral-400 line-clamp-2">
+                    {post.data.description}
+                  </p>
+                  <div class="flex items-center gap-3 text-sm text-neutral-500">
+                    <div class="flex items-center gap-2">
+                      <img 
+                        src="/avatar.jpg" 
+                        alt="Author" 
+                        class="w-6 h-6 rounded-full"
+                        onerror="this.style.display='none'"
+                      />
+                      <span>Aria</span>
+                    </div>
+                    <span>•</span>
+                    <time datetime={post.data.dateFormatted}>
+                      {formatter.format(new Date(post.data.dateFormatted))}
+                    </time>
+                    <span>•</span>
+                    <span>{calculateReadingTime(post.data.description)} 阅读</span>
+                  </div>
+                  {post.data.tags && (
+                    <div class="flex gap-2">
+                      {post.data.tags.map((postTag: string) => (
+                        <span class={`text-sm px-2 py-1 rounded-full ${
+                          postTag === tag 
+                            ? 'bg-neutral-200 dark:bg-neutral-700 text-neutral-800 dark:text-neutral-200' 
+                            : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400'
+                        }`}>
+                          #{postTag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </a>
+            </article>
+          ))}
+        </div>
+      </section>
+    )}
+
+    {projects.length > 0 && (
+      <section>
+        <h2 class="text-xl font-semibold mb-6 text-neutral-900 dark:text-neutral-100">项目</h2>
+        <div class="space-y-12">
+          {projects.map((project) => (
+            <article class="group relative">
+              <a href={`/project/${project.slug}`} class="block">
+                <div class="flex flex-col space-y-4">
+                  <h2 class="text-2xl font-bold text-neutral-900 dark:text-neutral-100 transition-colors">
+                    {project.data.title}
+                  </h2>
+                  <p class="text-neutral-600 dark:text-neutral-400 line-clamp-2">
+                    {project.data.description}
+                  </p>
+                  <div class="flex items-center gap-3 text-sm text-neutral-500">
+                    <div class="flex items-center gap-2">
+                      <img 
+                        src="/avatar.jpg" 
+                        alt="Author" 
+                        class="w-6 h-6 rounded-full"
+                        onerror="this.style.display='none'"
+                      />
+                      <span>Aria</span>
+                    </div>
+                    <span>•</span>
+                    <time datetime={project.data.dateFormatted}>
+                      {formatter.format(new Date(project.data.dateFormatted))}
+                    </time>
+                    <span>•</span>
+                    <span>{calculateReadingTime(project.data.description)} 阅读</span>
+                  </div>
+                  {project.data.tags && (
+                    <div class="flex gap-2">
+                      {project.data.tags.map((projectTag: string) => (
+                        <span class={`text-sm px-2 py-1 rounded-full ${
+                          projectTag === tag 
+                            ? 'bg-neutral-200 dark:bg-neutral-700 text-neutral-800 dark:text-neutral-200' 
+                            : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400'
+                        }`}>
+                          #{projectTag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </a>
+            </article>
+          ))}
+        </div>
+      </section>
+    )}
+  </main>
+</Layout>
+
+<style>
+  article {
+    position: relative;
+    padding: 2rem;
+    border-radius: 1rem;
+    transition: all 0.3s ease;
+  }
+
+  article:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+  }
+
+  .dark article:hover {
+    background-color: rgba(255, 255, 255, 0.02);
+  }
+</style> 

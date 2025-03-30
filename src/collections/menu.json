@@ -4,23 +4,19 @@
 		"url": "/"
 	},
 	{
-		"name": "Posts",
+		"name": "博客",
 		"url": "/post"
-	},
-	{
-		"name": "遮罩",
-		"url": "/mask"
 	},
 	{
 		"name": "作品集",
 		"url": "/portfolio"
 	},
 	{
-		"name": "Projects",
-		"url": "/projects"
+		"name": "项目",
+		"url": "/project"
 	},
 	{
-		"name": "About",
+		"name": "关于我",
 		"url": "/about"
 	}
 ]

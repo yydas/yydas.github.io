@@ -1,7 +1,7 @@
 ---
 title: Writing Less, Achieving More
 description: Delve into the art of minimalist coding, where simplicity reigns supreme, leading to clearer, more efficient, and aesthetically pleasing code.
-dateFormatted: 2023-05-24
+dateFormatted: "2023-05-24"
 ---
 
 ![Writing Less, Achieve More](/assets/images/posts/workspace.jpg)

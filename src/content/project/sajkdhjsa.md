@@ -1,7 +1,8 @@
 ---
-title: "欢迎来到我的博客"
+title: "欢迎来到我的姓名1"
 description: "这是我的第一篇博客文章"
 dateFormatted: "2024-03-20"
+image: "/assets/images/posts/vintage-tech-01.jpg"
 tags: ["技术", "编程", "Web开发"]
 ---
 

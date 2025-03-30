@@ -1,7 +1,7 @@
 ---
 title: The Perfect Brew for Optimal Productivity
 description: This is a post about how creating and developing a blog for yourself can be beneficial
-dateFormatted: 2023-05-21
+dateFormatted: "2023-05-21"
 ---
 
 ![Coffee and Code](/assets/images/posts/perfect-coffee.jpg)

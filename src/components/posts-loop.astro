@@ -2,7 +2,6 @@
 import { getCollection } from "astro:content";
 const { postCount = 10 } = Astro.props;
 const posts = await getCollection("post");
-// posts.sort((a, b) => b.data.dateFormatted - a.data.dateFormatted);
 const recentPosts = posts.slice(0, postCount);
 const formatter = new Intl.DateTimeFormat("zh-CN", {
   year: "numeric",
@@ -50,7 +49,6 @@ const formatter = new Intl.DateTimeFormat("zh-CN", {
                   stroke-width="2.4"
                 >
                   <g>
-                    <>
                       <polyline
                         class="transition-all duration-200 ease-out opacity-0 delay-0 group-hover:opacity-100"
                         points="5.33333333 0 10.8333333 5.5 5.33333333 11"
@@ -62,7 +60,6 @@ const formatter = new Intl.DateTimeFormat("zh-CN", {
                         x2="0.833333333"
                         y2="5.16666667"
                       />
-                    </>
                   </g>
                 </g>
               </g>

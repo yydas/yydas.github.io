@@ -9,14 +9,14 @@ const options = {
   isCaseSensitive: false,
 };
 
-function Search({ searchList }) {
+function Search({ searchList, type = "post" }) {
   // User's input
   const [query, setQuery] = useState("");
 
   const fuse = new Fuse(searchList, options);
 
-  // Set a limit to the posts: 5
-  const posts = fuse
+  // Set a limit to the results: 5
+  const results = fuse
     .search(query)
     .map((result) => result.item)
     .slice(0, 5);
@@ -25,6 +25,28 @@ function Search({ searchList }) {
     const { value } = target;
     setQuery(value);
   }
+
+  const getPlaceholder = () => {
+    switch (type) {
+      case "post":
+        return "搜索文章...";
+      case "project":
+        return "搜索项目...";
+      default:
+        return "搜索...";
+    }
+  };
+
+  const getResultLink = (item) => {
+    switch (type) {
+      case "post":
+        return `/post/${item.slug}/`;
+      case "project":
+        return `/project/${item.slug}/`;
+      default:
+        return `/${type}/${item.slug}/`;
+    }
+  };
 
   return (
     <div className="mt-8">
@@ -41,26 +63,25 @@ function Search({ searchList }) {
           value={query}
           onChange={handleOnSearch}
           className="w-full h-10 px-3 text-sm outline-none border border-dashed rounded-md focus:border-solid focus:ring-0 focus:border-black dark:focus:borders-white border-neutral-400 dark:border-neutral-600 dark:bg-neutral-800 dark:placeholder-neutral-400 dark:text-white hover:border-neutral-800 dark:hover:border-neutral-100 duration-200"
-          placeholder="Search for blog posts..."
+          placeholder={getPlaceholder()}
         />
       </div>
       {query.length > 1 && (
         <div className="my-4 text-neutral-600 dark:text-neutral-400">
-          Found {posts.length} {posts.length === 1 ? "result" : "results"} for "
+          找到 {results.length} 个{results.length === 1 ? "结果" : "结果"} "
           {query}"
         </div>
       )}
       <ul className="mt-6 grid grid-cols-1 gap-6">
-        {posts.map((data) => (
+        {results.map((data) => (
           <li
             class="
-            
             lg:flex-row lg:items-baseline lg:justify-between
             border-b border-spacing-y-2 border-zinc-300 dark:border-zinc-800 pb-4
           "
           >
             <a
-              href={`/post/${data.slug}/`}
+              href={getResultLink(data)}
               class="relative group flex flex-col sm:flex-row gap-0.5"
             >
               <div class="flex flex-col">

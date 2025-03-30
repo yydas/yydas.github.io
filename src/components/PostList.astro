@@ -2,32 +2,45 @@
 import { getCollection } from "astro:content";
 
 const posts = await getCollection("post");
+const projects = await getCollection("project");
 const currentPath = Astro.url.pathname;
 
-// Sort posts by dateFormatted if available, otherwise by title
-const sortedPosts = posts.sort((a, b) => {
+// 判断当前是否在项目页面
+const isProjectPage = currentPath.startsWith('/project/');
+
+// 根据页面类型选择要显示的内容
+const items = (isProjectPage ? projects : posts) as Array<{
+  slug: string;
+  data: {
+    title: string;
+    dateFormatted: string;
+  };
+}>;
+
+// 按日期排序
+const sortedItems = items.sort((a, b) => {
   if (a.data.dateFormatted && b.data.dateFormatted) {
-    return b.data.dateFormatted.getTime() - a.data.dateFormatted.getTime();
+    return new Date(b.data.dateFormatted).getTime() - new Date(a.data.dateFormatted).getTime();
   }
   return a.data.title.localeCompare(b.data.title);
 });
 
-// 获取当前路径，如果是首页则使用第一条文章的路径
-const effectivePath = currentPath === '/' ? `/post/${sortedPosts[0]?.slug}/` : currentPath;
+// 获取当前路径，如果是首页则使用第一条内容的路径
+const effectivePath = currentPath === '/' ? `/${isProjectPage ? 'project' : 'post'}/${sortedItems[0]?.slug}/` : currentPath;
 
-// 将文章按文件夹分组
-const groupedPosts = sortedPosts.reduce((groups, post) => {
-  const parts = post.slug.split('/');
+// 将内容按文件夹分组
+const groupedItems = sortedItems.reduce((groups, item) => {
+  const parts = item.slug.split('/');
   const folder = parts.length > 1 ? parts[0] : '其他';
   if (!groups[folder]) {
     groups[folder] = [];
   }
-  groups[folder].push(post);
+  groups[folder].push(item);
   return groups;
-}, {} as Record<string, typeof posts>);
+}, {} as Record<string, typeof items>);
 
 // 对分组进行排序
-const sortedGroups = Object.entries(groupedPosts).sort(([a], [b]) => {
+const sortedGroups = Object.entries(groupedItems).sort(([a], [b]) => {
   if (a === '其他') return -1;
   if (b === '其他') return 1;
   return a.localeCompare(b);
@@ -43,21 +56,23 @@ const isPathMatch = (current: string, target: string) => {
   return normalizedCurrent === normalizedTarget;
 };
 
+// 获取列表标题
+const listTitle = isProjectPage ? '项目列表' : '文章列表';
 ---
 
 <nav class="post-list">
   <ul>
-    {sortedGroups.map(([folder, posts]) => (
+    {sortedGroups.map(([folder, items]) => (
       <>
         {folder !== '其他' && (
           <li class="py-2 px-3">
             <h3 class="text-sm font-semibold text-neutral-900 dark:text-neutral-200">{folder}</h3>
           </li>
         )}
-        {posts.map((post) => {
-          const postPath = `/post/${post.slug}/`;
-          const normalizedPostPath = normalizePath(postPath);
-          const isActive = isPathMatch(effectivePath, postPath);
+        {items.map((item) => {
+          const itemPath = `/${isProjectPage ? 'project' : 'post'}/${item.slug}/`;
+          const normalizedItemPath = normalizePath(itemPath);
+          const isActive = isPathMatch(effectivePath, itemPath);
           return (
             <li class:list={[
               "border-l-2",
@@ -67,7 +82,7 @@ const isPathMatch = (current: string, target: string) => {
               }
             ]}>
               <a
-                href={postPath}
+                href={itemPath}
                 class:list={[
                   "block py-2 px-3 text-sm",
                   "hover:bg-gray-100 dark:hover:bg-neutral-900 hover:text-neutral-950 dark:hover:text-neutral-500",
@@ -77,7 +92,7 @@ const isPathMatch = (current: string, target: string) => {
                   },
                 ]}
               >
-                {post.data.title}
+                {item.data.title}
               </a>
             </li>
           )}

@@ -1,8 +1,8 @@
 ---
 import PageHeading from "../../components/page-heading.astro";
-import PostsLoop from "../../components/posts-loop.astro";
 import Layout from "../../layouts/main.astro";
 import SearchBar from "src/components/SearchBar.astro";
+import ProjectLoop from "src/components/project-loop.astro";
 ---
 
 <Layout title="My Writing">
@@ -11,9 +11,11 @@ import SearchBar from "src/components/SearchBar.astro";
       title="My Writing"
       description="Dive into my musings on life and tech in my latest posts; a blend of introspection and innovation. Keep an eye out for fresh insights and updates!"
     />
-    <SearchBar type="post" />
-    <div class="z-50 flex flex-col items-stretch w-full gap-5 my-8">
-      <PostsLoop postCount={5} />
+    <SearchBar type="project" />
+    <div
+      class="z-50 grid items-stretch w-full grid-cols-1 my-8 gap-7 sm:gap-5 sm:grid-cols-2"
+    >
+    <ProjectLoop postCount={10} />
     </div>
   </section>
 </Layout>

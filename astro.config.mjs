@@ -16,6 +16,10 @@ export default defineConfig({
         type: 'content',
         directory: 'src/content/post',
       },
+      project: {
+        type: 'content',
+        directory: 'src/content/project',
+      },
     },
   }
 });

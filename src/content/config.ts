@@ -7,11 +7,24 @@ const postCollection = defineCollection({
   schema: z.object({
     title: z.string(),
     description: z.string(),
-    dateFormatted: z.date()
+    dateFormatted: z.string(),
+    tags: z.array(z.string()).optional()
+  }),
+});
+
+const projectCollection = defineCollection({
+  type: 'content', // v2.5.0 及之后
+  schema: z.object({
+      title: z.string(),
+      description: z.string(),
+      dateFormatted: z.string(),
+      image: z.string(),
+      tags: z.array(z.string()).optional()
   }),
 });
 
 // 3. 导出一个 `collections` 对象来注册你的集合。
 export const collections = {
   'post': postCollection,
+  'project': projectCollection,
 };

@@ -1,7 +1,8 @@
 ---
 title: Code to Canvas
 description: This is a post about how creating and developing a blog for yourself can be beneficial and how building your audience is important.
-dateFormatted: 2023-05-20
+dateFormatted: "2023-05-20"
+tags: ["canvas"]
 ---
 
 ![Coffee and Code](/assets/images/posts/code-canvas.jpg)

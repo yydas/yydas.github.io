@@ -1,7 +1,7 @@
 {
-  "$ref": "#/definitions/post",
+  "$ref": "#/definitions/project",
   "definitions": {
-    "post": {
+    "project": {
       "type": "object",
       "properties": {
         "title": {
@@ -11,6 +11,9 @@
           "type": "string"
         },
         "dateFormatted": {
+          "type": "string"
+        },
+        "image": {
           "type": "string"
         },
         "tags": {
@@ -26,7 +29,8 @@
       "required": [
         "title",
         "description",
-        "dateFormatted"
+        "dateFormatted",
+        "image"
       ],
       "additionalProperties": false
     }

@@ -10,6 +10,21 @@ interface Props {
 }
 
 const { entry, headings } = Astro.props;
+
+// 创建日期格式化器
+const formatter = new Intl.DateTimeFormat("zh-CN", {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+});
+
+// 计算阅读时间的函数
+function calculateReadingTime(content: string) {
+  const wordsPerMinute = 100;
+  const words = content.split(/\s+/).length;
+  const minutes = Math.ceil(words / wordsPerMinute);
+  return `${minutes} 分钟`;
+}
 ---
 
 <Layout title={entry.data.title}>
@@ -28,21 +43,31 @@ const { entry, headings } = Astro.props;
       <!-- Main Content -->
       <div class="flex-1">
         <div
-          class="relative flex flex-col px-5 pt-6 border-t border-b-0 md:border-r md:border-l md:pt-20 lg:px-0 justify-stretch md:rounded-t-2xl border-neutral-200 dark:border-neutral-800"
+          class="relative flex flex-col px-5 lg:px-0 justify-stretch"
         >
-          <div
-            class="absolute top-0 left-0 hidden w-px h-full mt-1 -translate-x-px md:block bg-gradient-to-b from-transparent to-white dark:to-neutral-950"
-          >
-          </div>
-          <div
-            class="absolute top-0 right-0 hidden w-px h-full mt-1 translate-x-px md:block bg-gradient-to-b from-transparent to-white dark:to-neutral-950"
-          >
-          </div>
+          
           <h1
-            class="w-full max-w-2xl mx-auto text-3xl font-bold leading-tight tracking-tighter text-left md:mb-12 md:text-4xl dark:text-neutral-100 lg:text-5xl md:leading-none"
+            class="w-full max-w-2xl mx-auto text-3xl font-bold leading-tight tracking-tighter text-left md:mb-6 md:text-4xl dark:text-neutral-100 lg:text-5xl md:leading-none"
           >
             {entry.data.title}
           </h1>
+          <div class="w-full max-w-2xl mx-auto mb-4 text-sm text-neutral-500 text-left">
+            <span>{formatter.format(new Date(entry.data.dateFormatted))}</span>
+            <span class="mx-2">•</span>
+            <span>{calculateReadingTime(entry.data.description)} 阅读</span>
+          </div>
+          {entry.data.tags && entry.data.tags.length > 0 && (
+            <div class="w-full max-w-2xl mx-auto mb-12 flex flex-wrap gap-2">
+              {entry.data.tags.map((tag: string) => (
+                <a
+                  href={`/tags/${tag}`}
+                  class="px-3 py-1 text-sm rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors"
+                >
+                  #{tag}
+                </a>
+              ))}
+            </div>
+          )}
         </div>
 
         <div class="flex gap-8 px-4 lg:px-8">
@@ -74,6 +99,7 @@ const { entry, headings } = Astro.props;
 
   .post-list-container {
     position: sticky;
+    margin-top: 108px;
     padding: 1rem;
     transition: margin-top 0.3s ease;
   }

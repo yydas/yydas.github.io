@@ -1,7 +1,7 @@
 ---
 title: A Developer's Guide to Zen Mornings
 description: Dive into the zen world of a developer's morning, where vinyl beats meet artisanal brews, setting the tone for a day of inspired coding and design.
-dateFormatted: 2023-05-25
+dateFormatted: "2023-05-25"
 ---
 
 **Introduction**

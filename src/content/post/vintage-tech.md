@@ -1,7 +1,7 @@
 ---
 title: The Revival of Vintage Tech
 description: Embark on a nostalgic journey exploring the charm of vintage tech and its unexpected resurgence among modern developers and designers.
-dateFormatted: 2023-05-22
+dateFormatted: "2023-05-22"
 ---
 
 ![Vintage Tech](/assets/images/posts/vintage-tech-01.jpg)
