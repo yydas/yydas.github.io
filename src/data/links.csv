@@ -1,0 +1,8 @@
+name,url,description,category,tags
+GitHub,https://github.com,全球最大的代码托管平台,开发工具,git;代码托管
+Google,https://www.google.com,全球最大的搜索引擎,搜索引擎,搜索;浏览器
+MDN Web Docs,https://developer.mozilla.org,Web开发文档,开发文档,web;前端
+Stack Overflow,https://stackoverflow.com,程序员问答社区,开发社区,问答;编程
+Vue.js,https://vuejs.org,Vue.js官方文档,前端框架,vue;js;框架
+React,https://reactjs.org,React官方文档,前端框架,react;js;框架
+Tailwind CSS,https://tailwindcss.com,Tailwind CSS官方文档,前端框架,css;样式 

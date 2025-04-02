@@ -1,0 +1,641 @@
+---
+import Layout from "../layouts/main.astro";
+import { parseCSVData, getCategories } from '../utils/csv';
+import linksData from '../data/links.csv?raw';
+
+const links = parseCSVData(linksData);
+const categories = getCategories(links);
+const allTags = [...new Set(links.flatMap(link => link.tags))];
+---
+
+<Layout title="网址导航">
+  <div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-8">网址导航</h1>
+    
+    <div class="flex flex-col lg:flex-row gap-8">
+      <!-- 左侧分类和标签 -->
+      <div class="w-full lg:w-64 flex-shrink-0 space-y-6">
+        <!-- 搜索框 -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 transform transition-all duration-300 hover:shadow-lg">
+          <input
+            type="text"
+            id="searchInput"
+            placeholder="搜索链接..."
+            class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
+          />
+        </div>
+
+        <!-- 分类列表 -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 transform transition-all duration-300 hover:shadow-lg">
+          <h2 class="text-xl font-semibold mb-4 dark:text-white">分类</h2>
+          <ul class="space-y-2">
+            <li>
+              <button
+                class="block w-full text-left px-4 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors dark:text-gray-300"
+                data-category="all"
+              >
+                全部
+              </button>
+            </li>
+            {categories.map(category => (
+              <li>
+                <button
+                  class="block w-full text-left px-4 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors dark:text-gray-300"
+                  data-category={category}
+                >
+                  {category}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <!-- 标签列表 -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 transform transition-all duration-300 hover:shadow-lg">
+          <h2 class="text-xl font-semibold mb-4 dark:text-white">标签</h2>
+          <div class="flex flex-wrap gap-2">
+            {allTags.map(tag => (
+              <button
+                class="px-3 py-1 rounded-full text-sm bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors tag-button dark:text-gray-300"
+                data-tag={tag}
+              >
+                {tag}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <!-- 右侧链接卡片 -->
+      <div class="flex-1">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {links.map(link => (
+            <a
+              href={link.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="card link-card group border border-dashed border-neutral-300 dark:border-neutral-600"
+              data-category={link.category}
+              data-tags={link.tags.join(',')}
+              data-name={link.name}
+              data-description={link.description}
+            >
+              <h4>{link.name}</h4>
+              <p>{link.description}</p>
+              <div class="tags">
+                {link.tags.map(tag => (
+                  <span class="tag">{tag}</span>
+                ))}
+              </div>
+              <div class="shine"></div>
+              <div class="background">
+                <div class="tiles">
+                  <div class="tile tile-1"></div>
+                  <div class="tile tile-2"></div>
+                  <div class="tile tile-3"></div>
+                  <div class="tile tile-4"></div>
+                  <div class="tile tile-5"></div>
+                  <div class="tile tile-6"></div>
+                  <div class="tile tile-7"></div>
+                  <div class="tile tile-8"></div>
+                  <div class="tile tile-9"></div>
+                  <div class="tile tile-10"></div>
+                </div>
+                <div class="line line-1"></div>
+                <div class="line line-2"></div>
+                <div class="line line-3"></div>
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  /* 卡片基础样式 */
+  .card {
+    position: relative;
+    padding: 1.5rem;
+    border-radius: 1rem;
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    transition: all 0.3s ease;
+    overflow: hidden;
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  /* 暗色模式卡片样式 */
+  :global(.dark) .card {
+    background: rgba(17, 24, 39, 0.8);
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+  }
+
+  /* 标题样式 */
+  .card h4 {
+    z-index: 2;
+    position: relative;
+    margin: 12px 0 4px 0;
+    font-family: inherit;
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 2;
+    color: #18181B;
+    transition: color 0.3s ease;
+  }
+
+  /* 暗色模式标题颜色 */
+  :global(.dark) .card h4 {
+    color: #FFFFFF;
+  }
+
+  /* 描述文本样式 */
+  .card p {
+    z-index: 2;
+    position: relative;
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.7;
+    color: #52525B;
+    transition: color 0.3s ease;
+  }
+
+  /* 暗色模式描述文本颜色 */
+  :global(.dark) .card p {
+    color: #A1A1AA;
+  }
+
+  /* 背景动画效果 */
+  .card .shine {
+    border-radius: inherit;
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    overflow: hidden;
+    opacity: 0;
+    transition: opacity 0.5s;
+  }
+
+  .card .shine:before {
+    content: "";
+    width: 150%;
+    padding-bottom: 150%;
+    border-radius: 50%;
+    position: absolute;
+    left: 50%;
+    bottom: 55%;
+    filter: blur(35px);
+    opacity: 0.3;
+    transform: translateX(-50%);
+    background-image: conic-gradient(from 225deg at 50% 50%, rgba(16, 185, 129, 0) 0deg, #10B981 25deg, #EDFAF6 285deg, #FFFFFF 345deg, rgba(16, 185, 129, 0) 360deg);
+  }
+
+  /* 暗色模式光效 */
+  :global(.dark) .card .shine:before {
+    opacity: 0.1;
+    background-image: conic-gradient(from 205deg at 50% 50%, rgba(16, 185, 129, 0) 0deg, #10B981 25deg, rgba(52, 211, 153, 0.18) 295deg, rgba(16, 185, 129, 0) 360deg);
+  }
+
+  /* 网格背景 */
+  .card .background {
+    border-radius: inherit;
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    mask-image: radial-gradient(circle at 60% 5%, black 0%, black 15%, transparent 60%);
+  }
+
+  .card .background .tiles {
+    opacity: 0;
+    transition: opacity 0.25s;
+  }
+
+  .card .background .tiles .tile {
+    position: absolute;
+    background-color: rgba(16, 185, 129, 0.08);
+    animation-duration: 8s;
+    animation-iteration-count: infinite;
+    opacity: 0;
+  }
+
+  /* 暗色模式网格颜色 */
+  :global(.dark) .card .background .tiles .tile {
+    background-color: rgba(16, 185, 129, 0.05);
+  }
+
+  /* 线条动画 */
+  .card .background .line {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.35s;
+  }
+
+  .card .background .line:before,
+  .card .background .line:after {
+    content: "";
+    position: absolute;
+    background-color: #E9E9E7;
+    transition: transform 0.35s;
+  }
+
+  /* 暗色模式线条颜色 */
+  :global(.dark) .card .background .line:before,
+  :global(.dark) .card .background .line:after {
+    background-color: #2A2B2C;
+  }
+
+  /* 网格位置和动画 */
+  .card .background .tiles .tile.tile-4,
+  .card .background .tiles .tile.tile-6,
+  .card .background .tiles .tile.tile-10 {
+    animation-delay: -2s;
+  }
+
+  .card .background .tiles .tile.tile-3,
+  .card .background .tiles .tile.tile-5,
+  .card .background .tiles .tile.tile-8 {
+    animation-delay: -4s;
+  }
+
+  .card .background .tiles .tile.tile-2,
+  .card .background .tiles .tile.tile-9 {
+    animation-delay: -6s;
+  }
+
+  .card .background .tiles .tile.tile-1 {
+    top: 0;
+    left: 0;
+    height: 10%;
+    width: 22.5%;
+  }
+
+  .card .background .tiles .tile.tile-2 {
+    top: 0;
+    left: 22.5%;
+    height: 10%;
+    width: 27.5%;
+  }
+
+  .card .background .tiles .tile.tile-3 {
+    top: 0;
+    left: 50%;
+    height: 10%;
+    width: 27.5%;
+  }
+
+  .card .background .tiles .tile.tile-4 {
+    top: 0;
+    left: 77.5%;
+    height: 10%;
+    width: 22.5%;
+  }
+
+  .card .background .tiles .tile.tile-5 {
+    top: 10%;
+    left: 0;
+    height: 22.5%;
+    width: 22.5%;
+  }
+
+  .card .background .tiles .tile.tile-6 {
+    top: 10%;
+    left: 22.5%;
+    height: 22.5%;
+    width: 27.5%;
+  }
+
+  .card .background .tiles .tile.tile-7 {
+    top: 10%;
+    left: 50%;
+    height: 22.5%;
+    width: 27.5%;
+  }
+
+  .card .background .tiles .tile.tile-8 {
+    top: 10%;
+    left: 77.5%;
+    height: 22.5%;
+    width: 22.5%;
+  }
+
+  .card .background .tiles .tile.tile-9 {
+    top: 32.5%;
+    left: 50%;
+    height: 22.5%;
+    width: 27.5%;
+  }
+
+  .card .background .tiles .tile.tile-10 {
+    top: 32.5%;
+    left: 77.5%;
+    height: 22.5%;
+    width: 22.5%;
+  }
+
+  @keyframes tile {
+    0%, 12.5%, 100% {
+      opacity: 1;
+    }
+    25%, 82.5% {
+      opacity: 0;
+    }
+  }
+
+  .card .background .line:before {
+    left: 0;
+    right: 0;
+    height: 1px;
+    transform-origin: 0 50%;
+    transform: scaleX(0);
+  }
+
+  .card .background .line:after {
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    transform-origin: 50% 0;
+    transform: scaleY(0);
+  }
+
+  .card .background .line.line-1:before {
+    top: 10%;
+  }
+
+  .card .background .line.line-1:after {
+    left: 22.5%;
+  }
+
+  .card .background .line.line-1:before,
+  .card .background .line.line-1:after {
+    transition-delay: 0.3s;
+  }
+
+  .card .background .line.line-2:before {
+    top: 32.5%;
+  }
+
+  .card .background .line.line-2:after {
+    left: 50%;
+  }
+
+  .card .background .line.line-2:before,
+  .card .background .line.line-2:after {
+    transition-delay: 0.15s;
+  }
+
+  .card .background .line.line-3:before {
+    top: 55%;
+  }
+
+  .card .background .line.line-3:after {
+    right: 22.5%;
+  }
+
+  .card:hover .shine {
+    opacity: 1;
+    transition-duration: 0.5s;
+    transition-delay: 0s;
+  }
+
+  .card:hover .background .tiles {
+    opacity: 1;
+    transition-delay: 0.25s;
+  }
+
+  .card:hover .background .tiles .tile {
+    animation-name: tile;
+  }
+
+  .card:hover .background .line {
+    opacity: 1;
+    transition-duration: 0.15s;
+  }
+
+  .card:hover .background .line:before {
+    transform: scaleX(1);
+  }
+
+  .card:hover .background .line:after {
+    transform: scaleY(1);
+  }
+
+  .card:hover .background .line.line-1:before,
+  .card:hover .background .line.line-1:after {
+    transition-delay: 0s;
+  }
+
+  .card:hover .background .line.line-2:before,
+  .card:hover .background .line.line-2:after {
+    transition-delay: 0.15s;
+  }
+
+  .card:hover .background .line.line-3:before,
+  .card:hover .background .line.line-3:after {
+    transition-delay: 0.3s;
+  }
+
+  /* 优化移动端显示 */
+  @media (max-width: 768px) {
+    .card {
+      padding: 48px 12px 12px 12px;
+    }
+
+    .card h4 {
+      font-size: 13px;
+    }
+
+    .card p {
+      font-size: 12px;
+    }
+  }
+
+  /* 添加加载动画 */
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .link-card {
+    animation: fadeInUp 0.5s ease forwards;
+    opacity: 0;
+  }
+
+  .link-card:nth-child(1) { animation-delay: 0.1s; }
+  .link-card:nth-child(2) { animation-delay: 0.2s; }
+  .link-card:nth-child(3) { animation-delay: 0.3s; }
+  .link-card:nth-child(4) { animation-delay: 0.4s; }
+  .link-card:nth-child(5) { animation-delay: 0.5s; }
+  .link-card:nth-child(6) { animation-delay: 0.6s; }
+  .link-card:nth-child(7) { animation-delay: 0.7s; }
+  .link-card:nth-child(8) { animation-delay: 0.8s; }
+  .link-card:nth-child(9) { animation-delay: 0.9s; }
+  .link-card:nth-child(10) { animation-delay: 1s; }
+
+  /* 标签样式 */
+  .card .tags {
+    z-index: 2;
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 8px;
+  }
+
+  .card .tag {
+    font-size: 12px;
+    padding: 2px 8px;
+    border-radius: 12px;
+    background-color: rgba(16, 185, 129, 0.1);
+    color: #10B981;
+    transition: all 0.3s ease;
+  }
+
+  /* 暗色模式标签样式 */
+  :global(.dark) .card .tag {
+    background-color: rgba(16, 185, 129, 0.15);
+    color: #34D399;
+  }
+
+  /* 卡片悬浮时标签样式 */
+  .card:hover .tag {
+    background-color: rgba(16, 185, 129, 0.2);
+    transform: translateY(-1px);
+  }
+
+  /* 暗色模式卡片悬浮时标签样式 */
+  :global(.dark) .card:hover .tag {
+    background-color: rgba(16, 185, 129, 0.25);
+  }
+
+  /* 优化移动端标签显示 */
+  @media (max-width: 768px) {
+    .card .tags {
+      gap: 3px;
+    }
+
+    .card .tag {
+      font-size: 11px;
+      padding: 1px 6px;
+    }
+  }
+</style>
+
+<script>
+  // 获取所有元素
+  const categoryButtons = document.querySelectorAll<HTMLButtonElement>('[data-category]');
+  const tagButtons = document.querySelectorAll<HTMLButtonElement>('.tag-button');
+  const linkCards = document.querySelectorAll<HTMLElement>('.link-card');
+  const searchInput = document.getElementById('searchInput') as HTMLInputElement;
+
+  // 当前选中的分类和标签
+  let selectedCategory = 'all';
+  let selectedTags: string[] = [];
+
+  // 筛选函数
+  function filterCards() {
+    const searchText = searchInput.value.toLowerCase();
+    
+    linkCards.forEach(card => {
+      const category = card.getAttribute('data-category');
+      const tags = card.getAttribute('data-tags')?.split(',') || [];
+      const name = card.getAttribute('data-name')?.toLowerCase() || '';
+      const description = card.getAttribute('data-description')?.toLowerCase() || '';
+
+      // 检查分类
+      const categoryMatch = selectedCategory === 'all' || category === selectedCategory;
+      
+      // 检查标签
+      const tagMatch = selectedTags.length === 0 || selectedTags.every(tag => tags.includes(tag));
+      
+      // 检查搜索文本
+      const searchMatch = searchText === '' || 
+        name.includes(searchText) || 
+        description.includes(searchText);
+
+      // 显示/隐藏卡片
+      if (categoryMatch && tagMatch && searchMatch) {
+        card.style.display = 'block';
+        card.style.animation = 'fadeInUp 0.5s ease forwards';
+      } else {
+        card.style.display = 'none';
+      }
+    });
+  }
+
+  // 分类按钮点击事件
+  categoryButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      selectedCategory = button.getAttribute('data-category') || 'all';
+      
+      // 更新按钮样式
+      categoryButtons.forEach(btn => {
+        btn.classList.remove('bg-gray-100', 'dark:bg-gray-700');
+      });
+      button.classList.add('bg-gray-100', 'dark:bg-gray-700');
+
+      filterCards();
+    });
+  });
+
+  // 标签按钮点击事件
+  tagButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      const tag = button.getAttribute('data-tag') || '';
+      
+      if (selectedTags.includes(tag)) {
+        // 取消选中
+        selectedTags = selectedTags.filter(t => t !== tag);
+        button.classList.remove('bg-blue-500', 'text-white');
+        button.classList.add('bg-gray-100', 'dark:bg-gray-700');
+      } else {
+        // 选中
+        selectedTags.push(tag);
+        button.classList.remove('bg-gray-100', 'dark:bg-gray-700');
+        button.classList.add('bg-blue-500', 'text-white');
+      }
+
+      filterCards();
+    });
+  });
+
+  // 搜索输入事件
+  searchInput.addEventListener('input', filterCards);
+
+  // 根据 URL 中的 hash 自动选择分类
+  const hash = window.location.hash.slice(1);
+  if (hash) {
+    const categoryButton = document.querySelector<HTMLButtonElement>(`[data-category="${hash}"]`);
+    if (categoryButton) {
+      categoryButton.click();
+    }
+  } else {
+    // 默认选中"全部"
+    const allButton = document.querySelector<HTMLButtonElement>('[data-category="all"]');
+    if (allButton) {
+      allButton.click();
+    }
+  }
+
+  // 添加触摸反馈
+  linkCards.forEach(card => {
+    card.addEventListener('touchstart', () => {
+      card.style.transform = 'scale(0.98)';
+    });
+
+    card.addEventListener('touchend', () => {
+      card.style.transform = '';
+    });
+  });
+</script> 
