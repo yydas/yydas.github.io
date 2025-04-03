@@ -10,6 +10,30 @@ const allTags = [...new Set(links.flatMap((link) => link.tags))];
 
 <Layout title="网址导航">
   <div class="container mx-auto px-4 py-8">
+    <!-- 移动端分类导航 -->
+    <div class="xl:hidden mb-6 -mx-4">
+      <div class="overflow-x-auto scrollbar-hide">
+        <div class="flex whitespace-nowrap px-4 gap-2">
+          <button 
+            class="category-button px-3 py-1.5 text-sm rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors"
+            data-category="all"
+          >
+            全部
+          </button>
+          {
+            categories.map((category) => (
+              <button
+                class="category-button px-3 py-1.5 text-sm rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors"
+                data-category={category}
+              >
+                {category}
+              </button>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+
     <div class="flex flex-col lg:flex-row gap-8">
       <!-- 左侧分类和标签 -->
       <div
@@ -21,7 +45,7 @@ const allTags = [...new Set(links.flatMap((link) => link.tags))];
           <ul>
             <li>
               <a
-                class="block py-2 px-3 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-700 hover:text-neutral-950 dark:hover:text-neutral-50 text-neutral-500 cursor-pointer border-l-2 border-neutral-200 dark:border-neutral-800"
+                class="category-button block py-2 px-3 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-700 hover:text-neutral-950 dark:hover:text-neutral-50 text-neutral-500 cursor-pointer border-l-2 border-neutral-200 dark:border-neutral-800"
                 data-category="all"
               >
                 全部
@@ -31,7 +55,7 @@ const allTags = [...new Set(links.flatMap((link) => link.tags))];
               categories.map((category) => (
                 <li>
                   <a
-                    class="block py-2 px-3 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-700 hover:text-neutral-950 dark:hover:text-neutral-50 text-neutral-500 cursor-pointer border-l-2 border-neutral-200 dark:border-neutral-800"
+                    class="category-button block py-2 px-3 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-700 hover:text-neutral-950 dark:hover:text-neutral-50 text-neutral-500 cursor-pointer border-l-2 border-neutral-200 dark:border-neutral-800"
                     data-category={category}
                   >
                     {category}
@@ -72,7 +96,7 @@ const allTags = [...new Set(links.flatMap((link) => link.tags))];
             type="text"
             id="searchInput"
             placeholder="搜索链接..."
-            class="h-10 px-3 w-full lg:w-96 text-sm outline-none border border-dashed rounded-md focus:border-solid focus:ring-0 focus:border-black dark:focus:borders-white border-neutral-400 dark:border-neutral-600 dark:bg-neutral-800 dark:placeholder-neutral-400 dark:text-white hover:border-neutral-800 dark:hover:border-neutral-100 duration-200"
+            class="h-10 px-3 w-full lg:w-96 text-sm outline-none border rounded-md focus:border-solid focus:ring-0 focus:border-black dark:focus:borders-white border-neutral-300 dark:border-neutral-700 dark:bg-neutral-800 dark:placeholder-neutral-400 dark:text-white hover:border-neutral-800 dark:hover:border-neutral-100 duration-200"
           />
         </div>
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
@@ -451,9 +475,6 @@ const allTags = [...new Set(links.flatMap((link) => link.tags))];
 
   /* 优化移动端显示 */
   @media (max-width: 768px) {
-    .card {
-      padding: 48px 12px 12px 12px;
-    }
 
     .card h4 {
       font-size: 13px;
@@ -559,12 +580,20 @@ const allTags = [...new Set(links.flatMap((link) => link.tags))];
       padding: 1px 6px;
     }
   }
+
+  /* 隐藏滚动条但保持可滚动 */
+  .scrollbar-hide {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;  /* Chrome, Safari and Opera */
+  }
 </style>
 
 <script>
   // 获取所有元素
-  const categoryButtons =
-    document.querySelectorAll<HTMLButtonElement>("[data-category]");
+  const categoryButtons = document.querySelectorAll<HTMLButtonElement>(".category-button[data-category]");
   const tagButtons =
     document.querySelectorAll<HTMLButtonElement>(".tag-button");
   const linkCards = document.querySelectorAll<HTMLElement>(".link-card");
@@ -622,13 +651,13 @@ const allTags = [...new Set(links.flatMap((link) => link.tags))];
   }
 
   // 分类按钮点击事件
-  categoryButtons.forEach((a) => {
-    a.addEventListener("click", () => {
-      selectedCategory = a.getAttribute("data-category") || "all";
+  categoryButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      selectedCategory = button.getAttribute("data-category") || "all";
 
       // 更新按钮样式
-      categoryButtons.forEach((a) => {
-        a.classList.remove(
+      categoryButtons.forEach((button) => {
+        button.classList.remove(
           "bg-neutral-200",
           "dark:bg-neutral-800",
           "border-neutral-950",
@@ -638,7 +667,7 @@ const allTags = [...new Set(links.flatMap((link) => link.tags))];
           "font-semibold",
         );
       });
-      a.classList.add(
+      button.classList.add(
         "bg-neutral-200",
         "dark:bg-neutral-800",
         "text-neutral-950",

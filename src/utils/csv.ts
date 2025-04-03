@@ -17,6 +17,7 @@ export function parseCSVData(data: string): Link[] {
     headers.forEach((header, index) => {
       if (header === 'tags') {
         record[header] = values[index]
+        .replace(/"/g, '')
           .split(/[;]/)
           .map(tag => tag.trim())
           .filter(tag => tag);
