@@ -5,11 +5,11 @@
 	},
 	{
 		"name": "博客",
-		"url": "/post"
+		"url": "/post/page/1"
 	},
 	{
 		"name": "项目",
-		"url": "/project"
+		"url": "/project/page/1"
 	},
 	{
 		"name": "作品",
