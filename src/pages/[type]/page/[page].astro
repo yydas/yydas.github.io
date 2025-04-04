@@ -1,0 +1,77 @@
+---
+import { getCollection } from "astro:content";
+import Layout from "../../../layouts/main.astro";
+import PageHeading from "../../../components/page-heading.astro";
+import PostsLoop from "../../../components/posts-loop.astro";
+import ProjectLoop from "../../../components/project-loop.astro";
+import SearchBar from "../../../components/SearchBar.astro";
+import Pagination from "../../../components/Pagination.astro";
+
+// 定义静态路径
+export async function getStaticPaths() {
+  const types = ["post", "project"] as const;
+  const paths = [];
+
+  for (const type of types) {
+    const items = await getCollection(type);
+    const totalPages = Math.ceil(items.length / 5);
+
+    for (let page = 1; page <= totalPages; page++) {
+      paths.push({
+        params: { type, page: page.toString() },
+      });
+    }
+  }
+
+  return paths;
+}
+
+const { type, page } = Astro.params;
+const currentPage = parseInt(page || "1");
+const ITEMS_PER_PAGE = 5;
+
+// 获取内容集合
+const items = await getCollection(type as "post" | "project");
+const totalItems = items.length;
+const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+
+// 验证页码
+if (currentPage < 1 || currentPage > totalPages) {
+  return Astro.redirect(`/${type}/page/1`);
+}
+
+// 获取当前页的内容
+const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+const endIndex = startIndex + ITEMS_PER_PAGE;
+const currentItems = items.slice(startIndex, endIndex);
+
+// 页面标题和描述
+const pageTitle = type === "post" ? "My Writing" : "My Projects";
+const pageDescription = type === "post" 
+  ? "Dive into my musings on life and tech in my latest posts; a blend of introspection and innovation. Keep an eye out for fresh insights and updates!"
+  : "Explore my latest projects and experiments. From web development to creative coding, discover what I've been building.";
+---
+
+<Layout title={pageTitle}>
+  <section class="relative z-20 max-w-2xl mx-auto my-12 px-7 lg:px-0">
+    <PageHeading
+      title={pageTitle}
+      description={pageDescription}
+    />
+    <SearchBar type={type} />
+    <div class="z-50 flex flex-col items-stretch w-full gap-5 my-8">
+      {type === "post" ? (
+        <PostsLoop posts={currentItems} />
+      ) : (
+        <div class="grid items-stretch w-full grid-cols-1 gap-7 sm:gap-5 sm:grid-cols-2">
+          <ProjectLoop projects={currentItems} />
+        </div>
+      )}
+    </div>
+    <Pagination
+      currentPage={currentPage}
+      totalPages={totalPages}
+      baseUrl={`/${type}/page`}
+    />
+  </section>
+</Layout> 

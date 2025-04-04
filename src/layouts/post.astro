@@ -1,6 +1,7 @@
 ---
 import Layout from "./main.astro";
 import Pagination from "src/components/Pagination.astro";
+import Navigation from "src/components/Navigation.astro";
 import TableOfContents from "src/components/TableOfContents.astro";
 import PostList from "src/components/PostList.astro";
 
@@ -78,7 +79,7 @@ function calculateReadingTime(content: string) {
           </article>
         </div>
         
-        <Pagination />
+        <Navigation />
       </div>
 
       <!-- Right Sidebar - Table of Contents -->

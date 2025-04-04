@@ -1,0 +1,82 @@
+---
+import { getCollection } from "astro:content";
+import { basename } from "node:path";
+
+const currentPath = Astro.url.pathname;
+const isProjectPage = currentPath.startsWith('/project/');
+
+// 根据页面类型获取相应的集合
+const items = (await getCollection(isProjectPage ? "project" : "post")).sort(
+  (a, b) => new Date(a.data.dateFormatted).getTime() - new Date(b.data.dateFormatted).getTime()
+);
+
+const currentIndex = items.findIndex((item) => {
+  return basename(Astro.url.pathname) === item.slug;
+});
+
+const nextItem = items[currentIndex + 1];
+const prevItem = items[currentIndex - 1];
+
+// 获取导航文本
+const nextText = isProjectPage ? "Next Project" : "Next Post";
+const prevText = isProjectPage ? "Previous Project" : "Previous Post";
+---
+
+<nav class="col-start-2 grid grid-cols-1 gap-4 sm:grid-cols-2">
+  {
+    nextItem ? (
+      <a 
+        href={`/${isProjectPage ? 'project' : 'post'}/${nextItem.slug}/`} 
+        class="group flex items-center justify-start gap-2 rounded-xl border bg-background px-4 py-2 text-sm font-medium transition-all hover:bg-neutral-100 hover:text-accent-foreground dark:border-neutral-800 dark:bg-neutral-950 dark:hover:bg-neutral-900"
+      >
+        <svg 
+          width="1em" 
+          height="1em" 
+          class="size-4 transition-transform group-hover:-translate-x-1 text-foreground dark:text-neutral-300" 
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="m12 19l-7-7l7-7m7 7H5" />
+        </svg>
+        <div class="flex flex-col items-start">
+          <span class="text-xs text-muted-foreground text-neutral-500">{nextText}</span>
+          <span class="text-sm truncate dark:text-neutral-200">{nextItem.data.title}</span>
+        </div>
+      </a>
+    ) : (
+      <span></span>
+    )
+  }
+  {
+    prevItem ? (
+      <a 
+        href={`/${isProjectPage ? 'project' : 'post'}/${prevItem.slug}/`} 
+        class="group flex items-center justify-end gap-2 rounded-xl border bg-background px-4 py-2 text-sm font-medium transition-all hover:bg-neutral-100 hover:text-accent-foreground dark:border-neutral-800 dark:bg-neutral-950 dark:hover:bg-neutral-900"
+      >
+        <div class="flex flex-col items-end">
+          <span class="text-xs text-muted-foreground text-neutral-500">{prevText}</span>
+          <span class="text-sm truncate dark:text-neutral-200">{prevItem.data.title}</span>
+        </div>
+        <svg 
+          width="1em" 
+          height="1em" 
+          class="size-4 transition-transform group-hover:translate-x-1 text-foreground dark:text-neutral-300" 
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M5 12h14m-7-7l7 7l-7 7" />
+        </svg>
+      </a>
+    ) : (
+      <span></span>
+    )
+  }
+</nav>

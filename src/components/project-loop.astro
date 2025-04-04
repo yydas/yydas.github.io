@@ -1,8 +1,16 @@
 ---
 import { getCollection } from "astro:content";
-const { postCount = 3 } = Astro.props;
-const projects = await getCollection("project");
-const recentProjects = projects.slice(0, postCount);
+
+interface Props {
+  projects?: any[];
+  postCount?: number;
+}
+
+const { projects, postCount = 3 } = Astro.props;
+
+// 如果没有传入 projects，则获取所有项目
+const allProjects = projects || (await getCollection("project"));
+const recentProjects = allProjects.slice(0, postCount);
 ---
 
 {

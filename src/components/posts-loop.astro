@@ -1,8 +1,17 @@
 ---
 import { getCollection } from "astro:content";
-const { postCount = 10 } = Astro.props;
-const posts = await getCollection("post");
-const recentPosts = posts.slice(0, postCount);
+
+interface Props {
+  posts?: any[];
+  postCount?: number;
+}
+
+const { posts, postCount = 10 } = Astro.props;
+
+// 如果没有传入 posts，则获取所有文章
+const allPosts = posts || (await getCollection("post"));
+const recentPosts = allPosts.slice(0, postCount);
+
 const formatter = new Intl.DateTimeFormat("zh-CN", {
   year: "numeric",
   month: "long",
@@ -20,7 +29,7 @@ const formatter = new Intl.DateTimeFormat("zh-CN", {
         <div class="absolute inset-0 z-20 w-full h-full duration-300 ease-out bg-white border border-dashed dark:bg-neutral-950 rounded-2xl border-neutral-300 dark:border-neutral-600 group-hover:-translate-x-1 group-hover:-translate-y-1" />
         <div class="absolute inset-0 z-10 w-full h-full duration-300 ease-out border border-dashed rounded-2xl border-neutral-300 dark:border-neutral-600 group-hover:translate-x-1 group-hover:translate-y-1" />
         <div class="relative z-30 duration-300 ease-out group-hover:-translate-x-1 group-hover:-translate-y-1">
-          <h2 class="flex items-center mb-3">
+          <h2 class="flex items-center mb-3 text-neutral-900 dark:text-neutral-100">
             <a
               href={`/post/${post.slug}`}
               class="text-xl font-bold leading-tight tracking-tight sm:text-2xl dark:text-neutral-100"
@@ -28,7 +37,7 @@ const formatter = new Intl.DateTimeFormat("zh-CN", {
               {post.data.title}
             </a>
             <svg
-              class="group-hover:translate-x-0 flex-shrink-0 translate-y-0.5 -translate-x-1 w-2.5 h-2.5 stroke-current ml-1 transition-all ease-in-out duration-200  transform"
+              class="group-hover:translate-x-0 group-hover:translate-y-0 -rotate-45 translate-y-1 -translate-x-1 w-2.5 h-2.5 stroke-current ml-1 transition-all ease-in-out duration-200 transform"
               viewBox="0 0 13 15"
               version="1.1"
               xmlns="http://www.w3.org/2000/svg"
@@ -49,17 +58,17 @@ const formatter = new Intl.DateTimeFormat("zh-CN", {
                   stroke-width="2.4"
                 >
                   <g>
-                      <polyline
-                        class="transition-all duration-200 ease-out opacity-0 delay-0 group-hover:opacity-100"
-                        points="5.33333333 0 10.8333333 5.5 5.33333333 11"
-                      />
-                      <line
-                        class="transition-all duration-200 ease-out transform -translate-x-1 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 group-hover:ml-0"
-                        x1="10.8333333"
-                        y1="5.5"
-                        x2="0.833333333"
-                        y2="5.16666667"
-                      />
+                    <polyline
+                      class="transition-all duration-200 ease-out opacity-0 delay-0 group-hover:opacity-100"
+                      points="5.33333333 0 10.8333333 5.5 5.33333333 11"
+                    />
+                    <line
+                      class="transition-all duration-200 ease-out transform -translate-x-1 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 group-hover:ml-0"
+                      x1="10.8333333"
+                      y1="5.5"
+                      x2="0.833333333"
+                      y2="5.16666667"
+                    />
                   </g>
                 </g>
               </g>

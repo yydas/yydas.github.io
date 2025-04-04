@@ -8,12 +8,12 @@
 		"url": "/post"
 	},
 	{
-		"name": "作品集",
-		"url": "/portfolio"
-	},
-	{
 		"name": "项目",
 		"url": "/project"
+	},
+	{
+		"name": "作品",
+		"url": "/portfolio"
 	},
 	{
 		"name": "关于我",
