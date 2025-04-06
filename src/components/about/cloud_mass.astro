@@ -1,0 +1,38 @@
+<div id="clouds" class="absolute w-full z-[-1] top-0 overflow-hidden">
+    <div class="cloud w-[15rem] h-[4.5rem] bg-white rounded-[15rem] relative before:content-[''] before:absolute before:bg-white before:w-[7.5rem] before:h-[6rem] before:-top-[12px] before:left-[8px] before:rounded-[7.5rem] before:rotate-[30deg] after:content-[''] after:absolute after:bg-white after:w-[9rem] after:h-[9rem] after:-top-[42px] after:right-[12px] after:rounded-[9rem] x1"></div>
+    <div class="cloud w-[15rem] h-[4.5rem] bg-white rounded-[15rem] relative before:content-[''] before:absolute before:bg-white before:w-[7.5rem] before:h-[6rem] before:-top-[12px] before:left-[8px] before:rounded-[7.5rem] before:rotate-[30deg] after:content-[''] after:absolute after:bg-white after:w-[9rem] after:h-[9rem] after:-top-[42px] after:right-[12px] after:rounded-[9rem] x2 left-[15rem] scale-60 opacity-60"></div>
+    <div class="cloud w-[15rem] h-[4.5rem] bg-white rounded-[15rem] relative before:content-[''] before:absolute before:bg-white before:w-[7.5rem] before:h-[6rem] before:-top-[12px] before:left-[8px] before:rounded-[7.5rem] before:rotate-[30deg] after:content-[''] after:absolute after:bg-white after:w-[9rem] after:h-[9rem] after:-top-[42px] after:right-[12px] after:rounded-[9rem] x3 -left-[19rem] -top-[15rem] scale-80 opacity-80"></div>
+    <div class="cloud w-[15rem] h-[4.5rem] bg-white rounded-[15rem] relative before:content-[''] before:absolute before:bg-white before:w-[7.5rem] before:h-[6rem] before:-top-[12px] before:left-[8px] before:rounded-[7.5rem] before:rotate-[30deg] after:content-[''] after:absolute after:bg-white after:w-[9rem] after:h-[9rem] after:-top-[42px] after:right-[12px] after:rounded-[9rem] x4 left-[35rem] -top-[19rem] scale-75 opacity-75"></div>
+    <div class="cloud w-[15rem] h-[4.5rem] bg-white rounded-[15rem] relative before:content-[''] before:absolute before:bg-white before:w-[7.5rem] before:h-[6rem] before:-top-[12px] before:left-[8px] before:rounded-[7.5rem] before:rotate-[30deg] after:content-[''] after:absolute after:bg-white after:w-[9rem] after:h-[9rem] after:-top-[42px] after:right-[12px] after:rounded-[9rem] x5 -left-[11rem] -top-[11rem] scale-80 opacity-80"></div>
+</div>
+
+<style>
+    .x1 {
+        animation: moveclouds 15s linear infinite;
+    }
+
+    .x2 {
+        animation: moveclouds 25s linear infinite;
+    }
+
+    .x3 {
+        animation: moveclouds 20s linear infinite;
+    }
+
+    .x4 {
+        animation: moveclouds 18s linear infinite;
+    }
+
+    .x5 {
+        animation: moveclouds 20s linear infinite;
+    }
+
+    @keyframes moveclouds {
+        0% {
+            margin-left: 100rem;
+        }
+        100% {
+            margin-left: -100rem;
+        }
+    }
+</style>

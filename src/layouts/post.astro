@@ -1,6 +1,5 @@
 ---
 import Layout from "./main.astro";
-import Pagination from "src/components/Pagination.astro";
 import Navigation from "src/components/Navigation.astro";
 import TableOfContents from "src/components/TableOfContents.astro";
 import PostList from "src/components/PostList.astro";
@@ -30,7 +29,7 @@ function calculateReadingTime(content: string) {
 
 <Layout title={entry.data.title}>
   <main
-    class="relative z-30 max-w-[90rem] pb-1 mx-auto mt-10 bg-white dark:bg-neutral-950 md:rounded-t-md text-neutral-900"
+    class="relative z-30 max-w-[90rem] pb-1 mx-auto mt-10 md:rounded-t-md text-neutral-900"
   >
     <div class="flex">
       <!-- Left Sidebar - Post List -->
@@ -73,7 +72,7 @@ function calculateReadingTime(content: string) {
 
         <div class="flex gap-8 px-4 lg:px-8">
           <article
-            class="w-full max-w-2xl mx-auto mb-20 prose-sm prose lg:prose-lg dark:prose-invert"
+            class="w-full font-sans max-w-2xl mx-auto mb-20 prose-sm prose lg:prose-lg dark:prose-invert prose-pre:bg-white"
           >
             <slot />
           </article>

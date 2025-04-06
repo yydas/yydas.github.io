@@ -4,27 +4,31 @@
 		"role": "成都日炙科技有限公司",
 		"company": "产品经理",
 		"description": "1.负责公司项目前期的需求分析，与客户交流需求并与产品、研发团队进行需求评审工作，确保需求的合理性及促进开发人员对功能的理解进行快速实施。\n2.负责公司APP、WEB、小程序等项目的用户界面设计工作(如: 高保真原型设计、UI设计)。\n3.参与产品的整个设计环节，发现问题、定义问题并及时对相应问题进行解决；设计完成后制定，编写公司产品的视觉规范设计文档及交互文档。\n4.协助商务部门设计公司业务需求及公司形象的用品（如：公司LOGO、公司VIS系统手册、产品宣传册、产品宣传视频等）。",
-		"logo": "https://astro.s3.bitiful.net/blog/about/rizhi.png"
+		"logo": "https://astro.s3.bitiful.net/blog/about/rizhi.png",
+		"directory": "rizhi"
 	},
 	{
 		"dates": "2020.04 - 2023.09",
 		"role": "成都康天科技有限公司",
 		"company": "高级UI设计师 | 产品经理",
 		"description": "1.负责公司项目前期的需求分析，与客户交流需求并与产品、研发团队进行需求评审工作，确保需求的合理性及促进开发人员对功能的理解进行快速实施。\n2.负责公司APP、WEB、小程序等项目的用户界面设计工作(如: 高保真原型设计、UI设计)。\n3.参与产品的整个设计环节，发现问题、定义问题并及时对相应问题进行解决；设计完成后制定，编写公司产品的视觉规范设计文档及交互文档。\n4.协助商务部门设计公司业务需求及公司形象的用品（如：公司LOGO、公司VIS系统手册、产品宣传册、产品宣传视频等）。",
-		"logo": "https://astro.s3.bitiful.net/blog/about/kangtian.png"
+		"logo": "https://astro.s3.bitiful.net/blog/about/kangtian.png",
+		"directory": "kangtian"
 	},
 	{
 		"dates": "2019.06 - 2020.04",
 		"role": "贵阳数海知库信息技术有限公司",
 		"company": "UI设计师",
 		"description": "1.负责公司多个互联网产品APP、WEB、小程序等的用户界面设计工作(如: APP、小程序、官网的设计和优化)。\n2.负责完成产品相关的界面、图标、logo设计， 并参与制定、编写产品视觉设计规范文档。\n3.与产品、研发团队充分沟通协作，确认可控的误差范围，并确保视觉效果的最终实现。\n4.充分了解用户需求与产品背景，跟踪和评估产品用户体验，对界面进行持续的设计优化;",
-		"logo": "https://astro.s3.bitiful.net/blog/about/gomine.png"
+		"logo": "https://astro.s3.bitiful.net/blog/about/gomine.png",
+		"directory": "gomine"
 	},
 	{
 		"dates": "2017.04 - 2019.06",
 		"role": "贵州坤盾天成科技有限公司",
 		"company": "UI设计师",
 		"description": "1. 负责公司项目的迭代以及新项目的UI界面设计。\n2. 负责公司网页、大数据可视化、前端和后台等的视觉设计。\n3. 负责公司后台以及移动端的规范定制。\n4. 负责公司的宣传物料，H5等设计。",
-		"logo": "https://astro.s3.bitiful.net/blog/about/kundun.png"
+		"logo": "https://astro.s3.bitiful.net/blog/about/kundun.png",
+		"directory": "kundun"
 	}
 ]

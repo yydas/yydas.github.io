@@ -1,0 +1,41 @@
+---
+import ProjectLoop from "src/components/project-loop.astro";
+const {
+    dates,
+    role,
+    company,
+    description,
+    showProjects = 3,
+    directory,
+} = Astro.props;
+---
+
+<div
+    class="relative flex flex-col justify-start p-6"
+>
+    <div class="flex flex-row justify-between my-3">
+        <h3 class="text-xl font-bold dark:text-neutral-100">{role}</h3>
+        <p
+            class="text-sm leading-7 uppercase text-neutral-600 dark:text-neutral-400 trackign-widest"
+        >
+            {dates}
+        </p>
+    </div>
+
+    <p class="text-sm font-medium dark:text-neutral-300">{company}</p>
+    <p class="my-4 text-sm leading-6 text-neutral-700 dark:text-neutral-300">
+        {
+            description.split("\n").map((line: any, index: any) => (
+                <>
+                    {line}
+                    <br/>
+                </>
+            ))
+        }
+    </p>
+    <div
+        class="z-50 grid items-stretch w-full grid-cols-1 gap-7 sm:gap-5 sm:grid-cols-4"
+    >
+        <ProjectLoop limit={showProjects} directory={directory} />
+    </div>
+</div>
