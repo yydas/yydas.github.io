@@ -6,7 +6,7 @@ import react from "@astrojs/react";
 export default defineConfig({
   integrations: [tailwind(), react()],
   site: 'https://yydas.github.io',
-  server:{
+  server: {
     host: '0.0.0.0',
   },
   content: {
@@ -23,5 +23,11 @@ export default defineConfig({
   },
   vite: {
     assetsInclude: ['**/*.csv']
+  },
+  markdown: {
+    shikiConfig: {
+      theme: 'github-dark-dimmed',
+      wrap: true,
+    }
   }
 });
