@@ -9,9 +9,9 @@ const allTags = [...new Set(links.flatMap((link) => link.tags))];
 ---
 
 <Layout title="网址导航">
-  <div class="container mx-auto px-4 py-8">
+  <div class="search-container flex flex-col gap-2 sticky py-12 top-100 z-[11]">
     <!-- 移动端分类导航 -->
-    <div class="xl:hidden mb-6 -mx-4">
+    <div class="md:hidden mb-6 -mx-4">
       <div class="overflow-x-auto scrollbar-hide">
         <div class="flex whitespace-nowrap px-4 gap-2">
           <button
@@ -33,88 +33,167 @@ const allTags = [...new Set(links.flatMap((link) => link.tags))];
         </div>
       </div>
     </div>
-
-    <div class="flex flex-col lg:flex-row gap-8">
-      <!-- 左侧分类和标签 -->
-      <div
-        class="w-full lg:w-64 space-y-6 lg:sticky lg:top-20 hidden xl:block lg:h-full"
-      >
-        <!-- 分类列表 -->
-        <div>
-          <h2 class="text-xl font-semibold mb-4 dark:text-white">分类</h2>
-          <ul>
-            <li>
-              <a
-                class="category-button block py-2 px-3 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-700 hover:text-neutral-950 dark:hover:text-neutral-50 text-neutral-500 cursor-pointer border-l-2 border-neutral-200 dark:border-neutral-800"
-                data-category="all"
-              >
-                全部
-              </a>
-            </li>
-            {
-              categories.map((category) => (
-                <li>
-                  <a
-                    class="category-button block py-2 px-3 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-700 hover:text-neutral-950 dark:hover:text-neutral-50 text-neutral-500 cursor-pointer border-l-2 border-neutral-200 dark:border-neutral-800"
-                    data-category={category}
-                  >
-                    {category}
-                  </a>
-                </li>
-              ))
-            }
-          </ul>
+    <!-- 搜索栏和过滤区域 -->
+    <div
+      class="flex items-center rounded-xl border border-components-chat-input-border bg-components-panel-bg-blur p-1.5 shadow-md mx-auto w-[640px] shrink-0"
+    >
+      <!-- 标签下拉按钮 -->
+      <div class="shrink-0 relative" data-state="closed">
+        <div
+          id="tagsDropdownButton"
+          class="flex cursor-pointer items-center rounded-lg text-text-tertiary hover:bg-state-base-hover h-8 px-2 py-1"
+        >
+          <div class="p-0.5">
+            <svg
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              fill="currentColor"
+              class="remixicon h-4 w-4"
+              ><path d="M10 18H14V16H10V18ZM3 6V8H21V6H3ZM6 13H18V11H6V13Z"
+              ></path></svg
+            >
+          </div><div
+            id="selectedTagsHeader"
+            class="system-sm-medium flex items-center p-1"
+          >
+            所有标签
+          </div><svg
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            fill="currentColor"
+            class="remixicon h-4 w-4 dropdown-arrow"
+            ><path
+              d="M11.9999 13.1714L16.9497 8.22168L18.3639 9.63589L11.9999 15.9999L5.63599 9.63589L7.0502 8.22168L11.9999 13.1714Z"
+            ></path></svg
+          >
         </div>
 
-        <!-- 标签列表 -->
-        <div>
-          <h2 class="text-xl font-semibold mb-4 dark:text-white">标签</h2>
-          <div class="flex flex-wrap gap-2">
+        <!-- 标签下拉面板 -->
+        <div
+          id="tagsDropdown"
+          class="tags-dropdown hidden absolute mt-2 ml-1 p-3 bg-white dark:bg-neutral-800 rounded-xl shadow-lg max-h-80 overflow-y-auto w-64 border border-components-chat-input-border z-20"
+        >
+          <!-- 搜索框 -->
+          <div class="mb-3">
+            <div class="relative flex items-center">
+              <div class="absolute left-3 top-1/2 transform -translate-y-1/2">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-4 w-4 text-neutral-400"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                    clip-rule="evenodd"></path>
+                </svg>
+              </div>
+              <input
+                id="tagSearchInput"
+                class="w-full pl-9 pr-3 py-2 text-sm bg-neutral-100 dark:bg-neutral-700 border-none rounded-lg focus:outline-none focus:ring-1 focus:ring-neutral-400 dark:text-white"
+                placeholder="搜索标签..."
+              />
+            </div>
+          </div>
+
+          <!-- 标签列表 -->
+          <div class="space-y-1">
             {
               allTags.map((tag) => (
-                <button
-                  class="tag-button px-3 py-1 text-sm rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors"
+                <div
+                  class="tag-item flex h-7 cursor-pointer items-center rounded-lg px-2 py-1.5 hover:bg-state-base-hover"
                   data-tag={tag}
                 >
-                  {tag}
-                </button>
+                  <div class="checkbox-container h-4 w-4 cursor-pointer rounded-[4px] border border-components-checkbox-border bg-components-checkbox-bg-unchecked shadow-xs hover:border-components-checkbox-border-hover hover:bg-components-checkbox-bg-unchecked-hover mr-1">
+                    <svg
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      fill="currentColor"
+                      class="remixicon h-3 w-3 hidden"
+                    >
+                      <path d="M9.9997 15.1709L19.1921 5.97852L20.6063 7.39273L9.9997 17.9993L3.63574 11.6354L5.04996 10.2212L9.9997 15.1709Z" />
+                    </svg>
+                  </div>
+                  <div class="system-sm-medium px-1 text-text-secondary">
+                    {tag}
+                  </div>
+                  <input
+                    type="checkbox"
+                    id={`tag-${tag}`}
+                    class="tag-checkbox absolute opacity-0 invisible"
+                    data-tag={tag}
+                  />
+                </div>
               ))
             }
           </div>
         </div>
       </div>
 
-      <!-- 右侧链接卡片 -->
-      <div class="flex-1">
-        <div id="categoryTitle" class="mb-6 flex justify-between">
-          <h2
-            class="hidden lg:block text-2xl font-bold text-gray-900 dark:text-white"
-          >
-          </h2>
-          <!-- 搜索框 -->
+      <div class="mx-1 h-3.5 w-[1px] bg-divider-regular"></div>
+      <div class="relative flex grow items-center p-1 pl-2">
+        <div class="mr-2 flex w-full items-center">
           <input
-            type="text"
             id="searchInput"
+            class="body-md-medium block grow appearance-none bg-transparent text-text-secondary outline-none"
             placeholder="搜索链接..."
-            class="h-10 px-3 w-full lg:w-96 text-sm outline-none border rounded-md focus:border-solid focus:ring-0 focus:border-black dark:focus:borders-white border-neutral-300 dark:border-neutral-700 dark:bg-neutral-800 dark:placeholder-neutral-400 dark:text-white hover:border-neutral-800 dark:hover:border-neutral-100 duration-200"
+            value=""
           />
         </div>
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-          {
-            links.map((link) => (
-              <a
-                href={link.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                class="card link-card group relative p-4 rounded-xl bg-white/80 dark:bg-neutral-900/90 border border-dashed border-neutral-300 dark:border-neutral-600 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden cursor-pointer no-underline text-inherit animate-fadeInUp opacity-0"
-                data-category={link.category}
-                data-tags={link.tags.join(",")}
-                data-name={link.name}
-                data-description={link.description}
-              >
-                <span class="flex items-center text-neutral-900 dark:text-neutral-100">
-                  <h4>{link.name}</h4>
-                  <svg
+      </div>
+    </div>
+
+    <!-- 分类按钮区域 -->
+    <div
+      class="flex items-center justify-center space-x-2 bg-background-body py-3 sticky top-[56px] z-10 overflow-x-auto scrollbar-hide"
+    >
+      <div
+        class="system-md-medium flex h-8 cursor-pointer items-center rounded-xl border px-3 text-text-tertiary hover:bg-state-base-hover hover:text-text-secondary border-components-main-nav-nav-button-border !bg-components-main-nav-nav-button-bg-active !text-components-main-nav-nav-button-text-active shadow-xs category-button"
+        data-category="all"
+      >
+        全部
+      </div>
+      {
+        categories.map((category) => (
+          <div
+            class="system-md-medium flex h-8 cursor-pointer items-center rounded-xl border border-transparent px-3 text-text-tertiary hover:bg-state-base-hover hover:text-text-secondary category-button"
+            data-category={category}
+          >
+            {category}
+          </div>
+        ))
+      }
+    </div>
+  </div>
+  <div class="container mx-auto px-4">
+    <div class="flex flex-col gap-8">
+      <!-- 右侧链接卡片 -->
+      <div id="categoryTitle" class="mb-6 flex justify-between mt-4">
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">全部</h2>
+      </div>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+        {
+          links.map((link) => (
+            <a
+              href={link.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="card link-card group relative p-4 rounded-xl bg-white/80 dark:bg-neutral-900/90 border border-dashed border-neutral-300 dark:border-neutral-600 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden cursor-pointer no-underline text-inherit animate-fadeInUp opacity-0"
+              data-category={link.category}
+              data-tags={link.tags.join(",")}
+              data-name={link.name}
+              data-description={link.description}
+            >
+              <span class="flex items-center text-neutral-900 dark:text-neutral-100">
+                <h4>{link.name}</h4>
+                <svg
                   class="group-hover:translate-x-0 group-hover:translate-y-0 -rotate-45 translate-y-1 -translate-x-1 w-2.5 h-2.5 stroke-current ml-1 transition-all ease-in-out duration-200 transform z-50"
                   viewBox="0 0 13 15"
                   version="1.1"
@@ -151,36 +230,35 @@ const allTags = [...new Set(links.flatMap((link) => link.tags))];
                     </g>
                   </g>
                 </svg>
-                </span>
-                
-                <p>{link.description}</p>
-                <div class="tags">
-                  {link.tags.map((tag) => (
-                    <span class="tag">{tag}</span>
-                  ))}
+              </span>
+
+              <p>{link.description}</p>
+              <div class="tags">
+                {link.tags.map((tag) => (
+                  <span class="tag">{tag}</span>
+                ))}
+              </div>
+              <div class="shine" />
+              <div class="background">
+                <div class="tiles">
+                  <div class="tile tile-1" />
+                  <div class="tile tile-2" />
+                  <div class="tile tile-3" />
+                  <div class="tile tile-4" />
+                  <div class="tile tile-5" />
+                  <div class="tile tile-6" />
+                  <div class="tile tile-7" />
+                  <div class="tile tile-8" />
+                  <div class="tile tile-9" />
+                  <div class="tile tile-10" />
                 </div>
-                <div class="shine" />
-                <div class="background">
-                  <div class="tiles">
-                    <div class="tile tile-1" />
-                    <div class="tile tile-2" />
-                    <div class="tile tile-3" />
-                    <div class="tile tile-4" />
-                    <div class="tile tile-5" />
-                    <div class="tile tile-6" />
-                    <div class="tile tile-7" />
-                    <div class="tile tile-8" />
-                    <div class="tile tile-9" />
-                    <div class="tile tile-10" />
-                  </div>
-                  <div class="line line-1" />
-                  <div class="line line-2" />
-                  <div class="line line-3" />
-                </div>
-              </a>
-            ))
-          }
-        </div>
+                <div class="line line-1" />
+                <div class="line line-2" />
+                <div class="line line-3" />
+              </div>
+            </a>
+          ))
+        }
       </div>
     </div>
   </div>
@@ -630,10 +708,15 @@ const allTags = [...new Set(links.flatMap((link) => link.tags))];
   }
 
   .tag-button::before {
-    content: '';
+    content: "";
     position: absolute;
     inset: 0;
-    background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    background: linear-gradient(
+      45deg,
+      transparent,
+      rgba(255, 255, 255, 0.1),
+      transparent
+    );
     transform: translateX(-100%);
     transition: transform 0.5s ease;
   }
@@ -644,7 +727,12 @@ const allTags = [...new Set(links.flatMap((link) => link.tags))];
 
   /* 暗色模式标签按钮样式 */
   :global(.dark) .tag-button::before {
-    background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+    background: linear-gradient(
+      45deg,
+      transparent,
+      rgba(255, 255, 255, 0.05),
+      transparent
+    );
   }
 
   /* 选中状态的标签按钮样式 */
@@ -658,167 +746,491 @@ const allTags = [...new Set(links.flatMap((link) => link.tags))];
     background-color: rgba(16, 185, 129, 0.15);
     color: #34d399;
   }
+
+  /* 标签下拉菜单 */
+  .tags-dropdown {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(16, 185, 129, 0.4) transparent;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+    border: 1px solid #e5e7eb;
+  }
+
+  /* 暗色模式下拉菜单样式 */
+  :global(.dark) .tags-dropdown {
+    background-color: #1f2937;
+    border-color: #374151;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+
+  .tags-dropdown::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .tags-dropdown::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .tags-dropdown::-webkit-scrollbar-thumb {
+    background-color: rgba(16, 185, 129, 0.4);
+    border-radius: 10px;
+  }
+
+  /* 标签搜索输入框 */
+  #tagSearchInput {
+    background-color: #f3f4f6;
+    color: #1f2937;
+    border: 1px solid transparent;
+  }
+
+  #tagSearchInput:focus {
+    outline: none;
+    border-color: rgba(16, 185, 129, 0.5);
+    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+  }
+
+  /* 暗色模式标签搜索输入框 */
+  :global(.dark) #tagSearchInput {
+    background-color: #374151;
+    color: #f3f4f6;
+  }
+
+  :global(.dark) #tagSearchInput::placeholder {
+    color: #9ca3af;
+  }
+
+  /* 标签项目悬停效果 */
+  .tag-item:hover {
+    background-color: #f3f4f6;
+  }
+
+  :global(.dark) .tag-item:hover {
+    background-color: #374151;
+  }
+
+  /* 选中状态的复选框样式 */
+  .checkbox-container.checked {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--components-checkbox-bg);
+    color: var(--components-checkbox-icon);
+  }
+
+  .checkbox-container.checked:hover {
+    background-color: var(--components-checkbox-bg-hover);
+  }
+
+  /* 标签项目样式 */
+  .tag-item {
+    position: relative;
+    transition: background-color 0.2s ease;
+  }
+
+  /* 暗色模式下的标签文本颜色 */
+  :global(.dark) .tag-item .system-sm-medium {
+    color: #e5e7eb;
+  }
+
+  .tag-item .tag-checkbox {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* 分类按钮暗色模式样式 */
+  :global(.dark) .category-button {
+    border-color: #374151;
+    color: #e5e7eb;
+  }
+
+  :global(.dark) .category-button:hover {
+    background-color: rgba(31, 41, 55, 0.5);
+    color: #f3f4f6;
+  }
+
+  /* 标签下拉按钮暗色模式样式 */
+  :global(.dark) #tagsDropdownButton {
+    color: #e5e7eb;
+  }
+
+  :global(.dark) #tagsDropdownButton:hover {
+    background-color: rgba(31, 41, 55, 0.5);
+  }
+
+  /* 确保标签头部在暗色模式下有合适的颜色 */
+  :global(.dark) #selectedTagsHeader {
+    color: #e5e7eb;
+  }
+
+  /* 主搜索输入框暗色模式样式 */
+  :global(.dark) #searchInput {
+    color: #f3f4f6;
+  }
+
+  :global(.dark) #searchInput::placeholder {
+    color: #9ca3af;
+  }
+  .scrolled {
+    top: 10px;
+  }
 </style>
 
 <script>
-  // 获取所有元素
-  const categoryButtons = document.querySelectorAll<HTMLButtonElement>(
-    ".category-button[data-category]",
-  );
-  const tagButtons =
-    document.querySelectorAll<HTMLButtonElement>(".tag-button");
-  const linkCards = document.querySelectorAll<HTMLElement>(".link-card");
-  const searchInput = document.getElementById(
-    "searchInput",
-  ) as HTMLInputElement;
-  const categoryTitle = document.getElementById("categoryTitle") as HTMLElement;
-  const categoryTitleText = categoryTitle.querySelector("h2") as HTMLElement;
-
-  // 当前选中的分类和标签
-  let selectedCategory = "all";
-  let selectedTags: string[] = [];
-
-  // 更新分类按钮样式的函数
-  function updateCategoryButtonStyle(button: HTMLButtonElement, isSelected: boolean) {
-    if (isSelected) {
-      button.classList.add(
-        "bg-neutral-200",
-        "dark:bg-neutral-800",
-        "text-neutral-950",
-        "dark:text-neutral-50",
-        "font-semibold",
-        "border-neutral-950",
-        "dark:border-neutral-50",
-      );
-    } else {
-      button.classList.remove(
-        "bg-neutral-200",
-        "dark:bg-neutral-800",
-        "border-neutral-950",
-        "dark:border-neutral-50",
-        "text-neutral-950",
-        "dark:text-neutral-50",
-        "font-semibold",
-      );
-    }
-  }
-
-  // 筛选函数
-  function filterCards() {
-    const searchText = searchInput.value.toLowerCase();
-
-    linkCards.forEach((card) => {
-      const category = card.getAttribute("data-category");
-      const tags = card.getAttribute("data-tags")?.split(",") || [];
-      const name = card.getAttribute("data-name")?.toLowerCase() || "";
-      const description =
-        card.getAttribute("data-description")?.toLowerCase() || "";
-
-      // 检查分类
-      const categoryMatch =
-        selectedCategory === "all" || category === selectedCategory;
-
-      // 检查标签
-      const tagMatch =
-        selectedTags.length === 0 ||
-        selectedTags.every((tag) => tags.includes(tag));
-
-      // 检查搜索文本
-      const searchMatch =
-        searchText === "" ||
-        name.includes(searchText) ||
-        description.includes(searchText);
-
-      // 显示/隐藏卡片
-      if (categoryMatch && tagMatch && searchMatch) {
-        card.style.display = "block";
-        card.style.animation = "fadeInUp 0.5s ease forwards";
-      } else {
-        card.style.display = "none";
+  // 在DOM完全加载后执行所有操作
+  document.addEventListener("DOMContentLoaded", () => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        const SearchContainers = document.querySelectorAll(".search-container");
+        SearchContainers.forEach((container) => {
+          if (!entry.isIntersecting) {
+            container.classList.add("scrolled");
+          } else {
+            container.classList.remove("scrolled");
+          }
+        });
+      },
+      {
+        threshold: 0,
+        rootMargin: "-1px 0px 0px 0px",
       }
-    });
+    );
+    // 创建一个顶部标记元素来观察
+    const topMarker = document.createElement("div");
+    topMarker.style.height = "1px";
+    topMarker.style.width = "100%";
+    topMarker.style.position = "absolute";
+    topMarker.style.top = "0";
+    topMarker.style.left = "0";
 
-    // 更新分类标题
-    if (selectedCategory === "all") {
-      categoryTitleText.textContent = "全部";
-    } else {
-      categoryTitleText.textContent = selectedCategory;
-    }
+    // 将标记元素添加到文档中并开始观察
+    document.body.prepend(topMarker);
+    observer.observe(topMarker);
+    // 获取所有元素
+    const categoryButtons = document.querySelectorAll<HTMLElement>(
+      ".category-button[data-category]"
+    );
+    const tagCheckboxes = document.querySelectorAll<HTMLInputElement>(
+      ".tag-checkbox[data-tag]"
+    );
+    const tagItems = document.querySelectorAll<HTMLElement>(".tag-item");
+    const linkCards = document.querySelectorAll<HTMLElement>(".link-card");
+    const searchInput = document.getElementById(
+      "searchInput"
+    ) as HTMLInputElement;
+    const tagSearchInput = document.getElementById(
+      "tagSearchInput"
+    ) as HTMLInputElement;
+    const categoryTitle = document.getElementById(
+      "categoryTitle"
+    ) as HTMLElement;
+    const categoryTitleText = categoryTitle.querySelector("h2") as HTMLElement;
+    const tagsDropdownButton = document.getElementById(
+      "tagsDropdownButton"
+    ) as HTMLElement;
+    const tagsDropdown = document.getElementById("tagsDropdown") as HTMLElement;
+    const selectedTagsHeader = document.getElementById(
+      "selectedTagsHeader"
+    ) as HTMLElement;
 
-    // 更新所有分类按钮的样式
-    categoryButtons.forEach((button) => {
-      const buttonCategory = button.getAttribute("data-category");
-      updateCategoryButtonStyle(button, buttonCategory === selectedCategory);
-    });
-  }
+    // 当前选中的分类和标签
+    let selectedCategory = "all";
+    let selectedTags: string[] = [];
 
-  // 分类按钮点击事件
-  categoryButtons.forEach((button) => {
-    button.addEventListener("click", () => {
-      selectedCategory = button.getAttribute("data-category") || "all";
-      filterCards();
-    });
-  });
-
-  // 标签按钮点击事件
-  tagButtons.forEach((button) => {
-    button.addEventListener("click", () => {
-      const tag = button.getAttribute("data-tag") || "";
-
-      if (selectedTags.includes(tag)) {
-        // 取消选中
-        selectedTags = selectedTags.filter((t) => t !== tag);
-        button.classList.remove("selected");
-        button.classList.remove(
-          "bg-neutral-950",
-          "dark:bg-neutral-50",
-          "text-white",
-          "dark:text-neutral-950",
-          "hover:bg-neutral-800",
-          "dark:hover:bg-neutral-200",
-        );
-        button.classList.add("bg-neutral-100", "dark:bg-neutral-800");
-      } else {
-        // 选中
-        selectedTags.push(tag);
-        button.classList.add("selected");
-        button.classList.remove("bg-neutral-100", "dark:bg-neutral-800");
+    // 更新分类按钮样式的函数
+    function updateCategoryButtonStyle(
+      button: HTMLElement,
+      isSelected: boolean
+    ) {
+      if (isSelected) {
         button.classList.add(
-          "bg-neutral-950",
-          "dark:bg-neutral-50",
-          "text-white",
-          "dark:text-neutral-950",
-          "hover:bg-neutral-800",
-          "dark:hover:bg-neutral-200",
+          "!bg-components-main-nav-nav-button-bg-active",
+          "!text-components-main-nav-nav-button-text-active",
+          "border-components-main-nav-nav-button-border",
+          "shadow-xs"
         );
+        button.classList.remove("border-transparent");
+      } else {
+        button.classList.remove(
+          "!bg-components-main-nav-nav-button-bg-active",
+          "!text-components-main-nav-nav-button-text-active",
+          "border-components-main-nav-nav-button-border",
+          "shadow-xs"
+        );
+        button.classList.add("border-transparent");
+      }
+    }
+
+    // 更新标签复选框状态的函数
+    function updateTagCheckboxState(
+      checkbox: HTMLInputElement,
+      isSelected: boolean
+    ) {
+      checkbox.checked = isSelected;
+
+      // 更新复选框容器的样式
+      const tagItem = checkbox.closest(".tag-item") as HTMLElement;
+      const checkboxContainer = tagItem.querySelector(
+        ".checkbox-container"
+      ) as HTMLElement;
+      const checkIcon = checkboxContainer.querySelector("svg") as SVGElement;
+
+      if (isSelected) {
+        // 选中状态
+        checkboxContainer.classList.remove(
+          "border",
+          "border-components-checkbox-border",
+          "bg-components-checkbox-bg-unchecked",
+          "hover:border-components-checkbox-border-hover",
+          "hover:bg-components-checkbox-bg-unchecked-hover"
+        );
+        checkboxContainer.classList.add(
+          "flex",
+          "items-center",
+          "justify-center",
+          "bg-components-checkbox-bg",
+          "text-components-checkbox-icon",
+          "hover:bg-components-checkbox-bg-hover"
+        );
+        checkIcon.classList.remove("hidden");
+
+        // 暗色模式额外样式
+        if (document.documentElement.classList.contains("dark")) {
+          checkboxContainer.style.backgroundColor = "#10b981";
+          checkboxContainer.style.color = "#ffffff";
+        } else {
+          checkboxContainer.style.backgroundColor = "";
+          checkboxContainer.style.color = "";
+        }
+      } else {
+        // 未选中状态
+        checkboxContainer.classList.add(
+          "border",
+          "border-components-checkbox-border",
+          "bg-components-checkbox-bg-unchecked",
+          "hover:border-components-checkbox-border-hover",
+          "hover:bg-components-checkbox-bg-unchecked-hover"
+        );
+        checkboxContainer.classList.remove(
+          "flex",
+          "items-center",
+          "justify-center",
+          "bg-components-checkbox-bg",
+          "text-components-checkbox-icon",
+          "hover:bg-components-checkbox-bg-hover"
+        );
+        checkIcon.classList.add("hidden");
+
+        // 清除内联样式
+        checkboxContainer.style.backgroundColor = "";
+        checkboxContainer.style.color = "";
+      }
+    }
+
+    // 更新标签头部显示
+    function updateTagsHeaderDisplay() {
+      if (selectedTags.length === 0) {
+        selectedTagsHeader.textContent = "所有标签";
+      } else if (selectedTags.length === 1) {
+        selectedTagsHeader.textContent = selectedTags[0];
+      } else if (selectedTags.length === 2) {
+        selectedTagsHeader.textContent = `${selectedTags[0]},${selectedTags[1]}`;
+      } else {
+        selectedTagsHeader.textContent = `${selectedTags[0]},${selectedTags[1]} +${selectedTags.length - 2}`;
+      }
+    }
+
+    // 移除标签函数
+    function removeTag(tag: string) {
+      selectedTags = selectedTags.filter((t) => t !== tag);
+
+      // 更新标签复选框状态
+      tagCheckboxes.forEach((checkbox) => {
+        const checkboxTag = checkbox.getAttribute("data-tag") || "";
+        if (checkboxTag === tag) {
+          updateTagCheckboxState(checkbox, false);
+        }
+      });
+
+      updateTagsHeaderDisplay();
+      filterCards();
+    }
+
+    // 筛选标签项目的函数
+    function filterTagItems() {
+      const searchText = tagSearchInput.value.toLowerCase();
+
+      tagItems.forEach((item) => {
+        const tagDiv = item.querySelector(
+          ".system-sm-medium.px-1.text-text-secondary"
+        );
+        const tag = tagDiv?.textContent?.toLowerCase() || "";
+
+        if (tag.includes(searchText)) {
+          item.style.display = "flex";
+        } else {
+          item.style.display = "none";
+        }
+      });
+    }
+
+    // 筛选函数
+    function filterCards() {
+      const searchText = searchInput.value.toLowerCase();
+
+      linkCards.forEach((card) => {
+        const category = card.getAttribute("data-category");
+        const tags = card.getAttribute("data-tags")?.split(",") || [];
+        const name = card.getAttribute("data-name")?.toLowerCase() || "";
+        const description =
+          card.getAttribute("data-description")?.toLowerCase() || "";
+
+        // 检查分类
+        const categoryMatch =
+          selectedCategory === "all" || category === selectedCategory;
+
+        // 检查标签：改为 OR 逻辑，只要匹配任意一个选中的标签即可
+        const tagMatch =
+          selectedTags.length === 0 ||
+          selectedTags.some((tag) => tags.includes(tag));
+
+        // 检查搜索文本
+        const searchMatch =
+          searchText === "" ||
+          name.includes(searchText) ||
+          description.includes(searchText);
+
+        // 显示/隐藏卡片
+        if (categoryMatch && tagMatch && searchMatch) {
+          card.style.display = "block";
+          card.style.animation = "fadeInUp 0.5s ease forwards";
+        } else {
+          card.style.display = "none";
+        }
+      });
+
+      // 更新分类标题
+      if (selectedCategory === "all") {
+        categoryTitleText.textContent = "全部";
+      } else {
+        categoryTitleText.textContent = selectedCategory;
+      }
+    }
+
+    // 分类按钮点击事件
+    categoryButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        const prevCategory = selectedCategory;
+        selectedCategory = button.getAttribute("data-category") || "all";
+
+        // 如果点击的是已经选中的分类，不做任何操作
+        if (prevCategory === selectedCategory) return;
+
+        // 更新所有分类按钮样式
+        categoryButtons.forEach((btn) => {
+          updateCategoryButtonStyle(
+            btn,
+            btn.getAttribute("data-category") === selectedCategory
+          );
+        });
+
+        filterCards();
+      });
+    });
+
+    // 为标签项目及复选框添加点击事件
+    tagItems.forEach((item) => {
+      // 获取该项目中的复选框和标签文本
+      const checkbox = item.querySelector(
+        'input[type="checkbox"]'
+      ) as HTMLInputElement;
+      const checkboxContainer = item.querySelector(
+        ".checkbox-container"
+      ) as HTMLElement;
+      const tag = checkbox.getAttribute("data-tag") || "";
+
+      // 添加标签项目整体的点击事件处理
+      item.addEventListener("click", function (e) {
+        // 反转复选框状态
+        checkbox.checked = !checkbox.checked;
+
+        // 更新选中标签数组
+        if (checkbox.checked) {
+          if (!selectedTags.includes(tag)) {
+            selectedTags.push(tag);
+          }
+        } else {
+          selectedTags = selectedTags.filter((t) => t !== tag);
+        }
+
+        // 更新复选框样式
+        updateTagCheckboxState(checkbox, checkbox.checked);
+
+        // 更新UI和过滤结果
+        updateTagsHeaderDisplay();
+        filterCards();
+      });
+    });
+
+    // 搜索输入事件
+    searchInput.addEventListener("input", filterCards);
+
+    // 标签搜索输入事件
+    tagSearchInput.addEventListener("input", filterTagItems);
+
+    // 标签下拉菜单事件
+    tagsDropdownButton.addEventListener("click", (e) => {
+      e.stopPropagation();
+      tagsDropdown.classList.toggle("hidden");
+
+      // 切换箭头方向
+      const arrow = tagsDropdownButton.querySelector(".dropdown-arrow");
+      if (arrow) {
+        arrow.classList.toggle("rotate-180");
       }
 
-      filterCards();
+      // 如果打开下拉菜单，则聚焦搜索框
+      if (!tagsDropdown.classList.contains("hidden")) {
+        tagSearchInput.focus();
+      }
     });
+
+    // 点击页面其他地方关闭下拉菜单
+    document.addEventListener("click", (e) => {
+      if (
+        !tagsDropdownButton.contains(e.target as Node) &&
+        !tagsDropdown.contains(e.target as Node)
+      ) {
+        tagsDropdown.classList.add("hidden");
+        const arrow = tagsDropdownButton.querySelector(".dropdown-arrow");
+        if (arrow && arrow.classList.contains("rotate-180")) {
+          arrow.classList.remove("rotate-180");
+        }
+      }
+    });
+
+    // 阻止下拉菜单内的点击关闭下拉菜单
+    tagsDropdown.addEventListener("click", (e) => {
+      e.stopPropagation();
+    });
+
+    // 根据 URL 中的 hash 自动选择分类
+    const hash = window.location.hash.slice(1);
+    if (hash) {
+      const categoryButton = document.querySelector<HTMLElement>(
+        `.category-button[data-category="${hash}"]`
+      );
+      if (categoryButton) {
+        categoryButton.click();
+      }
+    } else {
+      // 默认选中"全部"
+      const allButton = document.querySelector<HTMLElement>(
+        '.category-button[data-category="all"]'
+      );
+      if (allButton) {
+        updateCategoryButtonStyle(allButton, true);
+      }
+    }
   });
-
-  // 搜索输入事件
-  searchInput.addEventListener("input", filterCards);
-
-  // 根据 URL 中的 hash 自动选择分类
-  const hash = window.location.hash.slice(1);
-  if (hash) {
-    const categoryButton = document.querySelector<HTMLButtonElement>(
-      `[data-category="${hash}"]`,
-    );
-    if (categoryButton) {
-      categoryButton.click();
-    }
-  } else {
-    // 默认选中"全部"
-    const allButton = document.querySelector<HTMLButtonElement>(
-      '[data-category="all"]',
-    );
-    if (allButton) {
-      allButton.click();
-    }
-  }
-
-  // 初始化时调用一次 filterCards 确保样式正确
-  filterCards();
 </script>
