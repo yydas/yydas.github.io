@@ -1,160 +1,117 @@
 ---
-title: 工作文档
-description: 会议纪要的内容.
-dateFormatted: "2023-05-23"
+title: Run MCP Server in a Docker sandbox
+description: Run MCP Server in a Docker sandbox to avoid supply chain attacks.
+dateFormatted: Apr 25, 2025
+tags: ["技术", "编程", "Web开发"]
 ---
 
-# 05-14
-#### 会员体系
-- 体系框架
-	- 成长值
-	- 等级分层
-	- 退档机
-- 权益体系
-	- 物质权益
-	- 精神权益
+MCP is a hot protocol in the AI development industry this year, but its Client/Server (C/S) architecture requires users to run the MCP Server locally.
 
-# 05-09
-- 讲解绿地泉商城
+Common ways to run MCP Server include stdio methods like npx (NPM ecosystem), uvx (Python ecosystem), Docker, and HTTP (SSE/Streaming) methods. However, running commands with npx and uvx carries significant risks. Accidentally executing a malicious package could lead to sensitive data exposure, posing a major security threat. For details, you can refer to Invariant's article [MCP Security Notification: Tool Poisoning Attacks](https://invariantlabs.ai/blog/mcp-security-notification-tool-poisoning-attacks).
 
-# 04-29
-- 商城先做
-- 积分兑换立减金实现才能上线
-- 自有商城供应商体系（用户、会员、积分、订单）活动、广告
-- 运营（商城、文旅、本地生活、活动、广告）
+As a software industry professional, I have a high degree of concern for security. I asked ChatGPT to compile a list of NPM and PyPI supply chain attack incidents from the past 5 years, and it was chilling.
 
-# 04-26
-测试报告需要截图、时间、地点、内容、分布、类型，有效期盖章
-备份：热备、冷备 备份安全性 高可用、备份策略 根据等保满足要求
-详设概设：功能要匹配上，非功能项要满足合同
-测试方案要先出，用例执行了要截图
+| **Time** | **Event** | **Summary and Scope of Impact** |
+| --- | --- | --- |
+| **February 2021** | **"Dependency Confusion" Vulnerability Disclosure** | Security researcher Alex Birsan utilized the **Dependency Confusion** technique to upload packages to NPM/PyPI with the same names as internal libraries used by multiple companies, successfully infiltrating the internal servers of 35 major companies including Apple and Microsoft ([PyPI flooded with 1,275 dependency confusion packages](https://www.sonatype.com/blog/pypi-flooded-with-over-1200-dependency-confusion-packages#:~:text=Dependency%20confusion%3A%20Year%20in%20review)). This demonstration sparked high concern within the industry regarding supply chain risks. |
+| **October 2021** | **UAParser.js Library Hijacked** | The popular library _ua-parser-js_ on NPM, with over 7 million weekly downloads, was compromised by attackers via the maintainer's account to publish malicious versions ([A Timeline of SSC Attacks, Curated by Sonatype](https://www.sonatype.com/resources/vulnerability-timeline#:~:text=%23%23%20%20Popular%20%22ua,Attacked)). Infected versions implanted **password-stealing trojans** and **cryptocurrency miners** upon installation, affecting a large number of developer systems. |
+| **October 2021** | **Poisoning via Fake Roblox Libraries** | Attackers uploaded multiple packages impersonating Roblox API on NPM (e.g., _noblox.js-proxy_), containing obfuscated malicious code. These packages would implant **trojans and ransomware** payloads after installation ([A Timeline of SSC Attacks, Curated by Sonatype](https://www.sonatype.com/resources/vulnerability-timeline#:~:text=,and%20has%20a%20Spooky%20Surprise)). These packages were downloaded thousands of times, demonstrating attackers used **typosquatting** to trick game developers. |
+| **November 2021** | **COA and RC Libraries Successively Hijacked** | Popular libraries on NPM, _coa_ (millions of weekly downloads) and _rc_ (14 million weekly downloads), were successively compromised to publish malicious versions. The affected versions executed **credential-stealing trojans** similar to the UAParser.js case, at one point causing build pipelines to break for numerous projects globally using frameworks like React ([A Timeline of SSC Attacks, Curated by Sonatype](https://www.sonatype.com/resources/vulnerability-timeline#:~:text=,js)) ([A Timeline of SSC Attacks, Curated by Sonatype](https://www.sonatype.com/resources/vulnerability-timeline#:~:text=,Is%20Hijacked%2C%20Too)). Official investigations determined the cause in both cases was compromised maintainer accounts. |
+| **January 2022** | **Colors/Faker Open Source Libraries "Suicide"** | The authors of the famous color formatting library _colors.js_ and test data generation library _faker.js_, out of protest, injected destructive code like infinite loops in the latest versions, causing thousands of projects, including those at companies like Meta (Facebook) and Amazon, to crash ([A Timeline of SSC Attacks, Curated by Sonatype](https://www.sonatype.com/resources/vulnerability-timeline#:~:text=Thousands%20of%20open%20source%20projects,companies%20exploiting%20open%20source)) (While not an external attack, it falls within the scope of supply chain poisoning). |
+| **January 2022** | **PyPI: 1,275 Malicious Packages Deployed in Bulk** | A single user frantically published **1,275 malicious packages** to PyPI in one day on January 23rd ([A Timeline of SSC Attacks, Curated by Sonatype](https://www.sonatype.com/resources/vulnerability-timeline#:~:text=,Than%201%2C200%20Dependency%20Confusion%20Packages)). Most of these packages impersonated the names of well-known projects or companies (e.g., _xcryptography_, _Sagepay_, etc.). After installation, they collected fingerprint information like hostname, IP, etc., and exfiltrated it to the attackers via DNS/HTTP ([PyPI flooded with 1,275 dependency confusion packages](https://www.sonatype.com/blog/pypi-flooded-with-over-1200-dependency-confusion-packages#:~:text=The%20,of%20these%20components%20are%20installed)) ([PyPI flooded with 1,275 dependency confusion packages](https://www.sonatype.com/blog/pypi-flooded-with-over-1200-dependency-confusion-packages#:~:text=For%20DNS%3A%20.sub.deliverycontent,online)). PyPI administrators took down all related packages within an hour of receiving the report ([PyPI flooded with 1,275 dependency confusion packages](https://www.sonatype.com/blog/pypi-flooded-with-over-1200-dependency-confusion-packages#:~:text=All%20of%20the%201%2C275%20were,an%20hour%20of%20our%20report)). |
+| **March 2022** | **Node-ipc "Protestware" Incident** | The author of _node-ipc_, a commonly used front-end build library, added malicious code in versions v10.1.1–10.1.3: when detecting client IPs belonging to Russia or Belarus, it would **wipe the file system** and overwrite files with heart emojis ([Corrupted open-source software enters the Russian battlefield | ZDNET](https://www.zdnet.com/article/corrupted-open-source-software-enters-the-russian-battlefield/#:~:text=To%20be%20exact%2C%20Miller%20added,annoying%20to%20a%20system%20destroyer)) ([Corrupted open-source software enters the Russian battlefield | ZDNET](https://www.zdnet.com/article/corrupted-open-source-software-enters%20the%20russian%20battlefield/#:~:text=According%20to%20developer%20security%20company,8%2C%20critical)). This library was widely depended upon by Vue CLI, etc., causing widespread damage to user systems and was assigned CVE-2022-23812 (CVSS 9.8) ([Corrupted open-source software enters the Russian battlefield | ZDNET](https://www.zdnet.com/article/corrupted-open-source-software-enters-the-russian-battlefield/#:~:text=According%20to%20developer%20security%20company,8%2C%20critical)). |
+| **October 2022** | **LofyGang Large-Scale Poisoning Campaign** | Security companies discovered a group named "LofyGang" distributed nearly **200 malicious packages** on NPM ([LofyGang Distributed ~200 Malicious NPM Packages to Steal Credit Card Data](https://thehackernews.com/2022/10/lofygang-distributed-200-malicious-npm.html#:~:text=Multiple%20campaigns%20that%20distributed%20trojanized,single%20threat%20actor%20dubbed%20LofyGang)). These packages implanted **trojans** through **typosquatting** and by impersonating common library names, stealing developers' credit card information, Discord accounts, and game service login credentials, accumulating thousands of installations ([LofyGang Distributed ~200 Malicious NPM Packages to Steal Credit Card Data](https://thehackernews.com/2022/10/lofygang-distributed-200-malicious-npm.html#:~:text=Multiple%20campaigns%20that%20distributed%20trojanized,single%20threat%20actor%20dubbed%20LofyGang)). This was an organized cybercrime activity that lasted over a year. |
+| **December 2022** | **PyTorch-nightly Dependency Chain Attack** | Well-known deep learning framework PyTorch disclosed that its nightly version suffered a **dependency confusion** supply chain attack between December 25-30 ([Malicious PyTorch dependency ‘torchtriton’ on PyPI | Wiz Blog](https://www.wiz.io/blog/malicious-pytorch-dependency-torchtriton-on-pypi-everything-you-need-to-know#:~:text=means%20that%20anyone%20who%20downloaded,and%20rotate%20any%20discovered%20keys)). Attackers registered a malicious package named _torchtriton_ on PyPI, sharing the same name as a private dependency required by the PyTorch nightly version, resulting in thousands of users who installed the nightly version via pip being affected ([Malicious PyTorch dependency ‘torchtriton’ on PyPI | Wiz Blog](https://www.wiz.io/blog/malicious-pytorch-dependency-torchtriton-on-pypi-everything%20you%20need%20to%20know#:~:text=means%20that%20anyone%20who%20downloaded,and%20rotate%20any%20discovered%20keys)). The malicious _torchtriton_ package, when run, collected system environment variables and secrets and uploaded them to the attacker's server, jeopardizing users' cloud credential security. PyTorch officially issued an urgent warning and replaced the namespace ([Malicious PyTorch dependency ‘torchtriton’ on PyPI | Wiz Blog](https://www.wiz.io/blog/malicious-pytorch-dependency-torchtriton-on-pypi-everything%20you%20need%20to%20know#:~:text=The%20creator%20of%20the%20copied,were%20stored%20on%20impacted%20resources)). |
+| **March 2023** | **"W4SP Stealer" Trojan Rampant on PyPI** | Security researchers successively discovered a large number of malicious packages carrying the **W4SP Stealer** information-stealing trojan appearing on PyPI ([W4SP Stealer Discovered in Multiple PyPI Packages Under Various Names](https://thehackernews.com/2022/12/w4sp-stealer-discovered-in-multiple.html#:~:text=Threat%20actors%20have%20published%20yet,malware%20on%20compromised%20developer%20machines)). These trojans have many aliases (e.g., ANGEL Stealer, PURE Stealer, etc.) but essentially all belong to the W4SP family, specifically designed to steal information like user passwords, cryptocurrency wallets, and Discord tokens ([W4SP Stealer Discovered in Multiple PyPI Packages Under Various Names](https://thehackernews.com/2022/12/w4sp-stealer-discovered-in%20multiple.html#:~:text=Interestingly%2C%20while%20the%20malware%20goes,be%20copies%20of%20W4SP%20Stealer)). A single report revealed 16 such malicious packages (e.g., _modulesecurity_, _easycordey_, etc.) ([W4SP Stealer Discovered in Multiple PyPI Packages Under Various Names](https://thehackernews.com/2022/12/w4sp-stealer-discovered-in-multiple.html#:~:text=The%2016%20rogue%20modules%20are,nowsys%2C%20upamonkws%2C%20captchaboy%2C%20and%20proxybooster)). PyPI initiated a cleanup targeting such trojans and strengthened upload detection. |
+| **August 2023** | **Lazarus Group Attacks PyPI** | ReversingLabs reported that a branch of the North Korean hacking group Lazarus published over two dozen (more than 24) malicious packages disguised as popular libraries on PyPI (codenamed "VMConnect" operation) ([Software Supply Chain Attacks: A (partial) History](https://www.reversinglabs.com/blog/a-partial-history-of-software-supply-chain-attacks#:~:text=)). These packages attempted to target users in specific industries (e.g., finance) to implant remote access trojans. It is claimed this attack is linked to previous similar activities targeting NuGet, showing state-sponsored hackers' interest in the open-source supply chain. |
+| **2024 and Beyond** | **Ongoing Supply Chain Threats** | Since 2024, new poisoning incidents continue to emerge on NPM and PyPI. For example, in early 2024, fake VS Code-related NPM packages were found to contain remote control spyware ([A Timeline of SSC Attacks, Curated by Sonatype](https://www.sonatype.com/resources/vulnerability-timeline#:~:text=,altered%20ScreenConnect%20utility%20as%20spyware)), and PyPI packages impersonating Solana libraries to steal crypto wallet keys ([A Timeline of SSC Attacks, Curated by Sonatype](https://www.sonatype.com/resources/vulnerability-timeline#:~:text=%23%23%20%20Ideal%20typosquat%20%27solana,steals%20your%20crypto%20wallet%20keys)) were discovered. This indicates that supply chain attacks have become a normalized threat, requiring the ecosystem to continuously raise vigilance and defense capabilities. |
 
-# 04-20
-线上自营商城：
-支付：支付、营销费
-出项：裂变营销渠道费、供应链结算
+I complained a bit on Twitter, and while complaining, I saw a tweet from a friend who had just encountered a supply chain attack incident.
 
-周边商城
-支付：支付金额、平台营销费、商家营销费
-出项：渠道费、平台费、商家实收
+[![Twitter](https://static.miantiao.me/share/ZUy0MY/twitter.jpeg)](https://x.com/tcdwww/status/1914202659210359108)
 
-# 04-16
-#### 过程交付文档
-- 文档修改用修订模式
-- 功能清单和详细设计描述一致 ，功能清单偏差需要有对应功能（对应来源：来源于标书）
-- 需求描述、用户场景、具体的数据要求
-- 测试用例、测试缺陷bug记录
-- 数据来源项：无的时候该功能无数据来源项
-- 版本v1.0.0 第一位是阶段版本 第二位是当前阶段变更版本 第三位是内部审核未过审的版本
-商家中心：
-分润管理
-对账
+Fortunately, [@TBXark](https://x.com/TBXark) recommended his **MCP Proxy** project, which makes it very convenient to run MCP Server in Docker. His initial goal was to run MCP Server on a server to reduce client load and facilitate mobile client calls. However, Docker's inherent isolation features perfectly aligned with my requirement for a sandbox.
 
-# 04-15
-##### 关键词
-- TOD：地铁站为中心一公里的商圈
-- 商家：商家入驻、线网商户
-- 会员：C端用户 、员工：工作人员
-- 业态：在线电商、线下团购、外卖、商超（pos机）、家政服务、物业服务
-- 商城、团购生活、票务、
-- 一个商家有多个门店
-- 商家统一门户->门店
-- 单一个人、私域会员人在多商家对应系统一个人、人和商家业态关系
-- C端用户：访客（未注册手机号）、会员（注册手机号）、地铁内部员工（手机号、工号、白名单）
-- 会员中心：通平台统一对外输出、成长用户；对外支付
-- 积分（代币）、成长值、权益
-- 优惠券关联商品
-- 账户：会员多账户（现金账户、积分账户、）员工（卡账户（现金账户、福利账户））
-- 商家可以属于所有商圈（-1 为自营）或者单独端口
-- 商家管理：商家业态管理、商家审批管理、分润管理、对账
-- 在线商城 b2c 一个商家多供应链
-- 
-- 入驻场地和入驻场所是什么
-- 商家选址下单
-- 商家结算规则
-- 入驻费用管理模块：
-	- 入驻费与合约费
-	- 解约和中止合约
-	- 商家应收款
+MCP Proxy runs MCP Servers in Docker and converts the protocol to MCP SSE, allowing users to make all calls via the SSE protocol from the MCP client. This can significantly reduce the risk of arbitrary file reading caused by directly running npx and uvx. *If deployed on an overseas server, it can also help solve network issues.*
 
-# 04-09
-- ~~多商户下单~~
-- 部分退款
-- 单商家多商户对于tod的问题
-- 团购是单产品下单还是多人成团下单
-- 快递闪送只是即时闪送还是快递+闪送
-- 商家的佣金是针对谁的，怎么计算
+However, it is currently still possible to read the `/config/config.json` configuration file of MCP Proxy, but the risk is manageable. I have also raised a feature request with the developer to configure the config file with 400 permissions and run the npx and uvx commands as the nobody user. If this can be implemented, it will perfectly solve the arbitrary file reading issue.
 
-# 04-07
-## 轨道生活服务平台
-地铁营销运营、线下活动（积分、优惠券）乘车使用
+## Running MCP Proxy
 
-#### 业务中台
-##### 基础数据
-###### 员工数据
-###### 组织数据
-###### 数据权限
-###### 会员数据（包含b2c、b2b2c）
-会员信息、权益、钱包（充值、积分等）、账号（多账号对应一个会员）、画像（大数据）、标签（大数据）
-###### TOD数据
-地铁圆心一公里、tod信息录入、用于业务中台tod隔离
-######  业态数据
-业态名称、中台的业态隔离、小程序展示、商家关联、tod业态关联
-###### 隔离数据
-TOD、业态、商家
-###### 日志数据
-业务、操作、埋点、异常、开发
-###### 消息数据
-对应消息中心
-###### 渠道数据
-###### 支付数据
-支付宝、微信支付
-###### 订单数据
-###### 积分数据
-###### 优惠券
-###### 营销
-##### 功能模块
-###### 系统管理
-###### 统一门户
-###### 员工中心
-###### 会员中心
-###### 支付中心
-微信立减-平台先向银行购入
-###### 订单中心
-###### 营销中心
-###### 商家中心（前期调研）
-线网商户、
-###### 日志中心
-###### 消息中心
-###### 评论中心
-##### 数据中台
-###### 数据基座
-###### 数据接入
-###### 数据清洗
-###### 主题库
-用户、商户、订单
-###### 专题库
-活动、精准推送
-###### 报表
-###### 标签
-#### 子系统后台
-###### 自有商场
-###### 线上信息流广告
-广告管理、广告投放、用户定向投放、接口提供
-###### TOD 系统集成
-统一登录、门户、营销活动、统计分析
-###### 平台入驻
-###### 线网商户
-###### 家政服务
-###### 快递闪送
-###### 商圈消费笔记
-#### 商家端
-##### 主体小程序（带核销）
-##### 频道
-#### 用户端
-##### 频道
-#### 节点
-4-26、7-26、12-26
-#### 计划
-周五-数据中台原型设计；17号全版本设计
+[![MCP Proxy](https://github.html.zone/TBXark/mcp-proxy)](https://github.com/TBXark/mcp-proxy)
 
+If you have your own VPS with Docker deployed, you can use the following command to run MCP Proxy.
+
+```
+docker run -d -p 9090:9090 -v /path/to/config.json:/config/config.json ghcr.io/tbxark/mcp-proxy:latest
+```
+
+If you don't have your own VPS, you can use the free container service provided by [**claw.cloud**](https://404.li/claw) ($5 credit per month, GitHub registration must be older than 180 days).
+
+Since Claw has container size limitations, we need to use the following environment variables to configure the cache directories for npx and uvx to prevent container crashes.
+
+```
+UV_CACHE_DIR=/cache/uv
+npm_config_cache=/cache/npm
+```
+
+Simultaneously mount 10GB of storage under the `/cache` path. Refer to my configuration: 0.5c CPU, 512M Memory, 10G Disk.
+
+The final configuration is as follows:
+
+![Claw](https://static.miantiao.me/share/g4KUgP/claw.jpg)
+
+## Configuring MCP Proxy
+
+The configuration file needs to be mounted at the `/config/config.json` path. For the complete configuration, please refer to [https://github.com/TBXark/mcp-proxy?tab=readme-ov-file#configurationonfiguration](https://github.com/TBXark/mcp-proxy?tab=readme-ov-file#configurationonfiguration).
+
+Below is my configuration, for your reference.
+
+```json
+{
+    "mcpProxy": {
+        "baseURL": "https://mcp.miantiao.me",
+        "addr": ":9090",
+        "name": "MCP Proxy",
+        "version": "1.0.0",
+        "options": {
+          "panicIfInvalid": false,
+          "logEnabled": true,
+          "authTokens": [
+            "miantiao.me"
+          ]
+        }
+    },
+    "mcpServers": {
+        "github": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@modelcontextprotocol/server-github"
+            ],
+            "env": {
+                "GITHUB_PERSONAL_ACCESS_TOKEN": "<YOUR_TOKEN>"
+            }
+        },
+        "fetch": {
+            "command": "uvx",
+            "args": [
+                "mcp-server-fetch"
+            ]
+        },
+        "amap": {
+            "url": "https://mcp.amap.com/sse?key=<YOUR_TOKEN>"
+        }
+    }
+}
+```
+
+## Calling MCP proxy
+
+Taking [**ChatWise**](https://404.li/chatwise) calling fetch as an example, just configure the SSE protocol directly.
+
+![fetch](https://static.miantiao.me/share/mI3zIh/fetch.jpg)
+
+Isn't it simple? When [**ChatWise**](https://404.li/chatwise) releases its mobile version, calling it this way will also be fully usable.
+
+![ChatWise](https://static.miantiao.me/share/t43O9e/chatwise.jpg)

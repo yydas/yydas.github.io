@@ -1,28 +1,71 @@
 ---
 import { getCollection } from "astro:content";
-import { basename } from "node:path";
 
 const currentPath = Astro.url.pathname;
 const isProjectPage = currentPath.startsWith('/project/');
 
 // 根据页面类型获取相应的集合
-const items = (await getCollection(isProjectPage ? "project" : "post")).sort(
-  (a, b) => new Date(a.data.dateFormatted).getTime() - new Date(b.data.dateFormatted).getTime()
-);
+const projects = await getCollection("project");
+const posts = await getCollection("post");
 
-const currentIndex = items.findIndex((item) => {
-  return basename(Astro.url.pathname) === item.slug;
+// 根据页面类型选择要显示的内容
+const items = (isProjectPage ? projects : posts) as Array<{
+  slug: string;
+  data: {
+    title: string;
+    dateFormatted: string;
+  };
+}>;
+
+// 按日期排序（与PostList.astro保持一致）
+const sortedItems = items.sort((a, b) => {
+  if (a.data.dateFormatted && b.data.dateFormatted) {
+    return new Date(b.data.dateFormatted).getTime() - new Date(a.data.dateFormatted).getTime();
+  }
+  return a.data.title.localeCompare(b.data.title);
 });
 
-const nextItem = items[currentIndex + 1];
-const prevItem = items[currentIndex - 1];
+// 将内容按文件夹分组（与PostList.astro保持一致）
+const groupedItems = sortedItems.reduce((groups, item) => {
+  const parts = item.slug.split('/');
+  const folder = parts.length > 1 ? parts[0] : '其他';
+  if (!groups[folder]) {
+    groups[folder] = [];
+  }
+  groups[folder].push(item);
+  return groups;
+}, {} as Record<string, typeof items>);
+
+// 对分组进行排序（与PostList.astro保持一致）
+const sortedGroups = Object.entries(groupedItems).sort(([a], [b]) => {
+  if (a === '其他') return -1;
+  if (b === '其他') return 1;
+  return a.localeCompare(b);
+});
+
+// 将分组后的内容重新展开为扁平数组，保持分组内的顺序
+const flattenedItems = sortedGroups.flatMap(([folder, items]) => items);
+
+// 从URL路径中提取slug部分
+// 例如: /project/rizhi/111/ -> rizhi/111 或 /post/welcome/ -> welcome
+const pathSegments = currentPath.split('/').filter(Boolean);
+// 对路径段进行URL解码，处理中文字符
+const decodedSegments = pathSegments.map(segment => decodeURIComponent(segment));
+const currentSlug = decodedSegments.slice(1).join('/'); // 跳过第一个段（project或post）
+
+const currentIndex = flattenedItems.findIndex((item) => {
+  return item.slug === currentSlug;
+});
+
+const nextItem = flattenedItems[currentIndex - 1];
+const prevItem = flattenedItems[currentIndex + 1];
 
 // 获取导航文本
 const nextText = isProjectPage ? "Next Project" : "Next Post";
 const prevText = isProjectPage ? "Previous Project" : "Previous Post";
 ---
 
-<nav class="col-start-2 grid grid-cols-1 gap-4 sm:grid-cols-2">
+<nav class="col-start-2 grid grid-cols-1 gap-4 sm:grid-cols-2 max-w-2xl mx-auto">
   {
     nextItem ? (
       <a 

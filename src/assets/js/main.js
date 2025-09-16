@@ -107,6 +107,9 @@ function showDay(animate) {
 	}, timeout);
 }
 
+// 暴露到全局以供 Dock 组件使用
+window.showDay = showDay;
+
 function showNight(animate) {
 	document.getElementById("moon").classList.remove("setting");
 	document.getElementById("sun").classList.remove("rising");
@@ -132,6 +135,9 @@ function showNight(animate) {
 		}
 	}, timeout);
 }
+
+// 暴露到全局以供 Dock 组件使用
+window.showNight = showNight;
 
 window.applyMenuItemClasses = () => {
 	const menuItems = document.querySelectorAll("#menu a");
