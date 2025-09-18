@@ -38,7 +38,7 @@ const { title } = Astro.props;
     <SquareLines />
     <Header />
     <slot />
-    <DefaultDock client:load items={[]} className="" />
+    <DefaultDock client:load className="" />
     <Footer />
     <script src="../assets/js/main.js"></script>
     <Fragment set:html={import.meta.env.FOOTER_INJECT} />
