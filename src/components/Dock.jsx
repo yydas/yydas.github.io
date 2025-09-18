@@ -1,284 +1,258 @@
-import React, { useState, useRef, useEffect } from 'react';
+"use client";
 
-const Dock = ({ 
-  items = [], 
-  className = "", 
-  distance = 100, 
-  panelHeight = 68, 
-  baseItemSize = 48, 
-  dockHeight = 256, 
-  magnification = 48 
-}) => {
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [isHovering, setIsHovering] = useState(false);
+import React, { useRef, useState, useEffect } from "react";
+import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+import { cn } from "../utils/cn";
+
+const DEFAULT_MAGNIFICATION = 60;
+const DEFAULT_DISTANCE = 140;
+
+export const Dock = React.forwardRef(({
+  className,
+  children,
+  direction = "middle",
+  iconSize = 40,
+  iconMagnification = DEFAULT_MAGNIFICATION,
+  iconDistance = DEFAULT_DISTANCE,
+  ...props
+}, ref) => {
+  const mouseX = useMotionValue(Infinity);
+
+  const renderChildren = () => {
+    return React.Children.map(children, (child) => {
+      if (React.isValidElement(child)) {
+        return React.cloneElement(child, {
+          mouseX: mouseX,
+          magnification: iconMagnification,
+          distance: iconDistance,
+          size: iconSize,
+        });
+      }
+      return child;
+    });
+  };
+
+  return (
+    <motion.div
+      ref={ref}
+      onMouseMove={(e) => mouseX.set(e.pageX)}
+      onMouseLeave={() => mouseX.set(Infinity)}
+      {...props}
+      className={cn(
+        "mx-auto flex h-[58px] w-max gap-2 rounded-2xl border p-2 backdrop-blur-md",
+        "bg-white/10 border-white/20 dark:bg-black/10 dark:border-white/10",
+        "supports-[backdrop-filter]:bg-white/10 supports-[backdrop-filter]:dark:bg-black/10",
+        className
+      )}
+    >
+      {renderChildren()}
+    </motion.div>
+  );
+});
+
+Dock.displayName = "Dock";
+
+export const DockIcon = React.forwardRef(({
+  size = DEFAULT_MAGNIFICATION,
+  magnification = DEFAULT_MAGNIFICATION,
+  distance = DEFAULT_DISTANCE,
+  mouseX,
+  className,
+  children,
+  ...props
+}, ref) => {
+  const innerRef = useRef(null);
+
+  const distanceCalc = useTransform(mouseX || useMotionValue(Infinity), (val) => {
+    const bounds = innerRef.current?.getBoundingClientRect() ?? { x: 0, width: 0 };
+    return val - bounds.x - bounds.width / 2;
+  });
+
+  const widthSync = useTransform(
+    distanceCalc,
+    [-distance, 0, distance],
+    [size, magnification, size]
+  );
+
+  const width = useSpring(widthSync, {
+    mass: 0.1,
+    stiffness: 150,
+    damping: 12,
+  });
+
+  return (
+    <motion.div
+      ref={innerRef}
+      style={{ width }}
+      className={cn(
+        "flex aspect-square cursor-pointer items-center justify-center rounded-full",
+        "bg-gray-200/50 dark:bg-gray-800/50 hover:bg-gray-300/50 dark:hover:bg-gray-700/50",
+        "transition-colors duration-200",
+        className
+      )}
+      {...props}
+    >
+      <div className="flex h-full w-full items-center justify-center">
+        {children}
+      </div>
+    </motion.div>
+  );
+});
+
+DockIcon.displayName = "DockIcon";
+
+// 默认的 Dock 组件
+export default function DefaultDock({ items, className, ...props }) {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [isDetailPage, setIsDetailPage] = useState(false);
-  const dockRef = useRef(null);
 
   useEffect(() => {
-    const handleMouseMove = (e) => {
-      if (dockRef.current) {
-        const rect = dockRef.current.getBoundingClientRect();
-        setMousePosition({
-          x: e.clientX - rect.left,
-          y: e.clientY - rect.top
-        });
-      }
-    };
-
-    const handleMouseEnter = () => setIsHovering(true);
-    const handleMouseLeave = () => setIsHovering(false);
-
-    // 检查暗色模式状态
-    const checkDarkMode = () => {
+    // 检查当前主题
+    const checkTheme = () => {
       const isDark = document.documentElement.classList.contains('dark');
       setIsDarkMode(isDark);
     };
 
-    // 检查滚动位置
-    const handleScroll = () => {
-      setShowScrollTop(window.scrollY > 300);
-    };
-
-    // 检查是否为详情页面
+    // 检查是否为详情页面 - 修复正则表达式
     const checkDetailPage = () => {
       const path = window.location.pathname;
-      const isDetail = path.includes('/post/') && path !== '/post' && path !== '/post/' ||
-                      path.includes('/project/') && path !== '/project' && path !== '/project/';
+      // 匹配 /post/xxx 或 /project/xxx 格式的路径
+      const isDetail = /^\/(post|project)\/[^\/]+\/?$/.test(path);
       setIsDetailPage(isDetail);
     };
 
-    const dock = dockRef.current;
-    if (dock) {
-      dock.addEventListener('mousemove', handleMouseMove);
-      dock.addEventListener('mouseenter', handleMouseEnter);
-      dock.addEventListener('mouseleave', handleMouseLeave);
-    }
+    // 检查滚动位置
+    const checkScroll = () => {
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      const hasScrollbar = document.documentElement.scrollHeight > window.innerHeight;
+      setShowScrollTop(scrollTop > 100 && hasScrollbar);
+    };
 
-    // 初始化检查
-    checkDarkMode();
+    // 初始检查
+    checkTheme();
     checkDetailPage();
-    handleScroll();
+    checkScroll();
 
-    // 添加事件监听器
-    window.addEventListener('scroll', handleScroll);
-    
-    // 监听暗色模式变化
-    const observer = new MutationObserver(checkDarkMode);
+    // 监听主题变化
+    const observer = new MutationObserver(checkTheme);
     observer.observe(document.documentElement, {
       attributes: true,
       attributeFilter: ['class']
     });
 
+    // 监听滚动
+    window.addEventListener('scroll', checkScroll);
+    window.addEventListener('resize', checkScroll);
+
+    // 监听路由变化
+    const handleRouteChange = () => {
+      checkDetailPage();
+      checkScroll();
+    };
+    
+    // 监听 popstate 事件（浏览器前进后退）
+    window.addEventListener('popstate', handleRouteChange);
+
     return () => {
-      if (dock) {
-        dock.removeEventListener('mousemove', handleMouseMove);
-        dock.removeEventListener('mouseenter', handleMouseEnter);
-        dock.removeEventListener('mouseleave', handleMouseLeave);
-      }
-      window.removeEventListener('scroll', handleScroll);
       observer.disconnect();
+      window.removeEventListener('scroll', checkScroll);
+      window.removeEventListener('resize', checkScroll);
+      window.removeEventListener('popstate', handleRouteChange);
     };
   }, []);
 
-  const calculateItemSize = (itemIndex, itemsLength) => {
-    if (!isHovering) return baseItemSize;
-
-    const itemWidth = dockRef.current ? dockRef.current.offsetWidth / itemsLength : baseItemSize;
-    const itemCenter = itemIndex * itemWidth + itemWidth / 2;
-    const distanceFromMouse = Math.abs(mousePosition.x - itemCenter);
-    
-    if (distanceFromMouse < distance) {
-      const scale = 1 + (1 - distanceFromMouse / distance) * (magnification - baseItemSize) / baseItemSize;
-      return Math.min(baseItemSize * scale, magnification);
-    }
-    
-    return baseItemSize;
-  };
-
-  // 功能函数
-  const toggleDarkMode = () => {
-    const html = document.documentElement;
-    html.classList.add("duration-300");
-    
-    if (html.classList.contains('dark')) {
-      localStorage.removeItem("dark_mode");
-      // 调用原有的 showDay 函数
-      if (typeof window.showDay === 'function') {
-        window.showDay(true);
-      } else {
-        html.classList.remove('dark');
-      }
-    } else {
-      localStorage.setItem("dark_mode", true);
-      // 调用原有的 showNight 函数
-      if (typeof window.showNight === 'function') {
-        window.showNight(true);
-      } else {
-        html.classList.add('dark');
-      }
-    }
-  };
-
-  const scrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth'
-    });
-  };
-
-  const goBack = () => {
-    if (window.history.length > 1) {
-      window.history.back();
-    } else {
-      // 如果没有历史记录，根据当前路径返回到相应的列表页
-      const path = window.location.pathname;
-      if (path.includes('/post/')) {
-        window.location.href = '/post';
-      } else if (path.includes('/project/')) {
-        window.location.href = '/project';
-      } else {
-        window.location.href = '/';
-      }
-    }
-  };
-
+  // 默认的 Dock 项目配置
   const defaultItems = [
-    // 返回按钮（仅在详情页显示）
+    // 返回按钮 - 只在详情页显示
     ...(isDetailPage ? [{
       id: 'back',
       icon: (
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
         </svg>
       ),
       label: '返回',
-      onClick: goBack,
-      className: 'text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300'
+      action: () => window.history.back()
     }] : []),
-    
     {
       id: 'home',
       icon: (
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
         </svg>
       ),
       label: '首页',
-      href: '/'
+      action: () => window.location.href = '/'
     },
-    
-    // 暗色模式切换
     {
       id: 'theme',
-      icon: (
-        <div className="relative flex items-center justify-center w-6 h-6">
-          <svg
-            className={`absolute w-6 h-6 transition duration-700 transform ease ${isDarkMode ? 'hidden' : ''}`}
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            strokeWidth={2}
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" />
-          </svg>
-          <svg
-            className={`absolute w-6 h-6 transition duration-700 transform ease ${!isDarkMode ? 'hidden' : ''}`}
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            strokeWidth={2}
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
-          </svg>
-        </div>
+      icon: isDarkMode ? (
+        // 暗色模式 - 显示太阳图标
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+        </svg>
+      ) : (
+        // 亮色模式 - 显示月亮图标
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+        </svg>
       ),
-      label: isDarkMode ? '亮色模式' : '暗色模式',
-      onClick: toggleDarkMode,
-      className: 'text-yellow-500 hover:text-yellow-600 dark:text-yellow-400 dark:hover:text-yellow-300'
+      label: isDarkMode ? '切换到亮色模式' : '切换到暗色模式',
+      action: () => {
+        // 使用 main.js 中的主题切换逻辑
+        document.documentElement.classList.add("duration-300");
+        
+        if (document.documentElement.classList.contains("dark")) {
+          localStorage.removeItem("dark_mode");
+          // 调用 main.js 中的 showDay 函数
+          if (window.showDay) {
+            window.showDay(true);
+          } else {
+            // 备用方案
+            document.documentElement.classList.remove("dark");
+          }
+        } else {
+          localStorage.setItem("dark_mode", true);
+          // 调用 main.js 中的 showNight 函数
+          if (window.showNight) {
+            window.showNight(true);
+          } else {
+            // 备用方案
+            document.documentElement.classList.add("dark");
+          }
+        }
+      }
     },
-    
-    // 回到顶部（仅在有滚动时显示）
+    // 回到顶部按钮 - 只在有滚动条且滚动时显示
     ...(showScrollTop ? [{
-      id: 'scroll-top',
+      id: 'top',
       icon: (
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
         </svg>
       ),
       label: '回到顶部',
-      onClick: scrollToTop,
-      className: 'text-green-500 hover:text-green-600 dark:text-green-400 dark:hover:text-green-300'
-    }] : []),
-    
-    {
-      id: 'links',
-      icon: (
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-        </svg>
-      ),
-      label: '链接',
-      href: '/links'
-    }
+      action: () => window.scrollTo({ top: 0, behavior: 'smooth' })
+    }] : [])
   ];
 
-  const itemsToRender = items.length > 0 ? items : defaultItems;
+  const finalItems = items || defaultItems;
 
   return (
-    <div className={`fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 ${className}`}>
-      <div 
-        ref={dockRef}
-        className="flex items-end justify-center bg-white/80 dark:bg-gray-800/80 backdrop-blur-md rounded-full px-4 py-3 shadow-lg border border-gray-200/50 dark:border-gray-700/50"
-        style={{ height: `${panelHeight}px` }}
-      >
-        {itemsToRender.map((item, index) => {
-          const size = calculateItemSize(index, itemsToRender.length);
-          
-          const ItemContent = () => (
-            <div
-              className={`
-                flex items-center justify-center rounded-xl transition-all duration-200 ease-out cursor-pointer
-                hover:bg-gray-100 dark:hover:bg-gray-700 relative group
-                ${item.className || 'text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400'}
-              `}
-              style={{
-                width: `${size}px`,
-                height: `${size}px`,
-                fontSize: typeof item.icon === 'string' ? `${size * 0.6}px` : 'inherit'
-              }}
-              onClick={item.onClick}
-            >
-              {typeof item.icon === 'string' ? (
-                <span>{item.icon}</span>
-              ) : (
-                item.icon
-              )}
-              
-              {/* 工具提示 */}
-              <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 px-2 py-1 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none">
-                {item.label}
-                <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900 dark:border-t-gray-100"></div>
-              </div>
-            </div>
-          );
-
-          return (
-            <div key={item.id || index} className="flex items-end">
-              {item.href ? (
-                <a href={item.href}>
-                  <ItemContent />
-                </a>
-              ) : (
-                <ItemContent />
-              )}
-            </div>
-          );
-        })}
-      </div>
+    <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50">
+      <Dock className={className} {...props}>
+        {finalItems.map((item) => (
+          <DockIcon
+            key={item.id}
+            className="text-gray-700 dark:text-gray-300"
+            onClick={item.action}
+            title={item.label}
+          >
+            {item.icon}
+          </DockIcon>
+        ))}
+      </Dock>
     </div>
   );
-};
-
-export default Dock;
+}
