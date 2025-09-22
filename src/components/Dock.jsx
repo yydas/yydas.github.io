@@ -62,6 +62,19 @@ export const DockIcon = React.forwardRef(({
   ...props
 }, ref) => {
   const innerRef = useRef(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    // 检测是否为移动设备
+    const checkMobile = () => {
+      const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
+                           ('ontouchstart' in window) || 
+                           (navigator.maxTouchPoints > 0);
+      setIsMobile(isMobileDevice);
+    };
+    
+    checkMobile();
+  }, []);
 
   const distanceCalc = useTransform(mouseX || useMotionValue(Infinity), (val) => {
     const bounds = innerRef.current?.getBoundingClientRect() ?? { x: 0, width: 0 };
@@ -71,7 +84,8 @@ export const DockIcon = React.forwardRef(({
   const widthSync = useTransform(
     distanceCalc,
     [-distance, 0, distance],
-    [size, magnification, size]
+    // 在移动端禁用放大效果，始终保持原始尺寸
+    isMobile ? [size, size, size] : [size, magnification, size]
   );
 
   const width = useSpring(widthSync, {
@@ -114,11 +128,15 @@ export default function DefaultDock({ items, className, ...props }) {
       setIsDarkMode(isDark);
     };
 
-    // 检查是否为详情页面 - 修复正则表达式
+    // 检查是否为详情页面 - 支持多级路径，排除分页导航
     const checkDetailPage = () => {
       const path = window.location.pathname;
-      // 匹配 /post/xxx 或 /project/xxx 格式的路径
-      const isDetail = /^\/(post|project)\/[^\/]+\/?$/.test(path);
+      // 匹配 /post/xxx 或 /project/xxx 格式的路径，支持多级目录
+      // 但排除列表页和分页导航页（如 /post/page/1, /project/page/2）
+      const isDetail = /^\/(post|project)\//.test(path) && 
+                      path !== '/post/' && 
+                      path !== '/project/' &&
+                      !/^\/(post|project)\/page\/\d+\/?$/.test(path);
       setIsDetailPage(isDetail);
     };
 
