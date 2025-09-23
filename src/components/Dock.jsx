@@ -39,7 +39,7 @@ export const Dock = React.forwardRef(({
       onMouseLeave={() => mouseX.set(Infinity)}
       {...props}
       className={cn(
-        "mx-auto flex h-[58px] w-max gap-2 rounded-2xl border p-2 backdrop-blur-md",
+        "mx-auto flex h-[58px] w-max gap-2 rounded-full border p-2 backdrop-blur-md",
         "bg-white/10 border-white/20 dark:bg-black/10 dark:border-white/10",
         "supports-[backdrop-filter]:bg-white/10 supports-[backdrop-filter]:dark:bg-black/10",
         className

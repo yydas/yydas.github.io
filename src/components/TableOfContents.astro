@@ -9,19 +9,36 @@ export interface Props {
 }
 
 const { headings } = Astro.props;
+
+// 计算相对缩进层级
+const calculateRelativeIndent = (headings: typeof headings) => {
+  if (headings.length === 0) return [];
+  
+  // 找到最小的标题层级作为基准
+  const minDepth = Math.min(...headings.map(h => h.depth));
+  
+  // 为每个标题计算相对于最小层级的缩进
+  return headings.map(heading => ({
+    ...heading,
+    relativeDepth: heading.depth - minDepth
+  }));
+};
+
+const headingsWithRelativeDepth = calculateRelativeIndent(headings);
 ---
 
 <nav class="toc">
   <ul class="space-y-2 text-sm text-neutral-500 dark:text-neutral-400">
     {
-      headings.map((heading) => (
+      headingsWithRelativeDepth.map((heading) => (
         <li
           class:list={[
             "hover:text-neutral-600 dark:hover:text-neutral-400",
-            { "ml-3": heading.depth === 3 },
-            { "ml-6": heading.depth === 4 },
-            { "ml-9": heading.depth === 5 },
-            { "ml-12": heading.depth === 6 },
+            { "ml-3": heading.relativeDepth === 1 },
+            { "ml-6": heading.relativeDepth === 2 },
+            { "ml-9": heading.relativeDepth === 3 },
+            { "ml-12": heading.relativeDepth === 4 },
+            { "ml-15": heading.relativeDepth === 5 },
           ]}
         >
           <a href={`#${heading.slug}`}>{heading.text}</a>
@@ -59,4 +76,4 @@ const { headings } = Astro.props;
   document.querySelectorAll("h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]").forEach((heading) => {
     observer.observe(heading);
   });
-</script> 
+</script>
