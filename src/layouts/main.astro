@@ -41,6 +41,23 @@ const { title } = Astro.props;
     <DefaultDock client:load className="" />
     <Footer />
     <script src="../assets/js/main.js"></script>
+    <script>
+      // 确保抽屉切换函数在全局可用
+      document.addEventListener('DOMContentLoaded', () => {
+        // 为 DefaultDock 组件提供抽屉切换函数
+        if (window.togglePostListDrawer) {
+          // 如果抽屉函数已经存在，直接使用
+          window.dockPostListToggle = window.togglePostListDrawer;
+        } else {
+          // 否则创建一个占位函数，等待抽屉初始化完成
+          window.dockPostListToggle = () => {
+            if (window.togglePostListDrawer) {
+              window.togglePostListDrawer();
+            }
+          };
+        }
+      });
+    </script>
     <Fragment set:html={import.meta.env.FOOTER_INJECT} />
   </body>
 </html>

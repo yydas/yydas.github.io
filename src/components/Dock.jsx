@@ -120,8 +120,18 @@ export default function DefaultDock({ items, className, ...props }) {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [isDetailPage, setIsDetailPage] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
+    // 检测是否为移动设备
+    const checkMobile = () => {
+      const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
+                           ('ontouchstart' in window) || 
+                           (navigator.maxTouchPoints > 0) ||
+                           window.innerWidth < 768;
+      setIsMobile(isMobileDevice);
+    };
+
     // 检查当前主题
     const checkTheme = () => {
       const isDark = document.documentElement.classList.contains('dark');
@@ -148,6 +158,7 @@ export default function DefaultDock({ items, className, ...props }) {
     };
 
     // 初始检查
+    checkMobile();
     checkTheme();
     checkDetailPage();
     checkScroll();
@@ -159,9 +170,12 @@ export default function DefaultDock({ items, className, ...props }) {
       attributeFilter: ['class']
     });
 
-    // 监听滚动
+    // 监听滚动和窗口大小变化
     window.addEventListener('scroll', checkScroll);
-    window.addEventListener('resize', checkScroll);
+    window.addEventListener('resize', () => {
+      checkMobile();
+      checkScroll();
+    });
 
     // 监听路由变化
     const handleRouteChange = () => {
@@ -180,6 +194,11 @@ export default function DefaultDock({ items, className, ...props }) {
     };
   }, []);
 
+  // 获取抽屉切换函数
+  const getPostListToggle = () => {
+    return window.dockPostListToggle || window.togglePostListDrawer;
+  };
+
   // 默认的 Dock 项目配置
   const defaultItems = [
     // 返回按钮 - 只在详情页显示
@@ -192,6 +211,22 @@ export default function DefaultDock({ items, className, ...props }) {
       ),
       label: '返回',
       action: () => window.history.back()
+    }] : []),
+    // 文章列表按钮 - 只在移动端详情页显示
+    ...(isMobile && isDetailPage ? [{
+      id: 'postList',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+        </svg>
+      ),
+      label: '文章列表',
+      action: () => {
+        const toggleFn = getPostListToggle();
+        if (toggleFn) {
+          toggleFn();
+        }
+      }
     }] : []),
     {
       id: 'home',

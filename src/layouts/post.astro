@@ -90,6 +90,9 @@ function calculateReadingTime(content: string) {
       </aside>
     </div>
   </main>
+
+  <!-- 移动端抽屉组件 -->
+  <div id="mobile-drawer-container"></div>
 </Layout>
 
 <style>
@@ -111,6 +114,73 @@ function calculateReadingTime(content: string) {
 </style>
 
 <script>
+  import { createRoot } from 'react-dom/client';
+  import React from 'react';
+
+  // 动态导入组件
+  async function initializeDrawer() {
+    try {
+      const [
+        { default: Drawer },
+        { default: PostListDrawer }
+      ] = await Promise.all([
+        import('../components/Drawer.jsx'),
+        import('../components/PostListDrawer.jsx')
+      ]);
+
+      // 创建抽屉状态管理
+      let isDrawerOpen = false;
+
+      // 抽屉组件
+      function DrawerApp() {
+        const [isOpen, setIsOpen] = React.useState(false);
+
+        React.useEffect(() => {
+          // 监听全局抽屉状态变化
+          const handleDrawerToggle = () => {
+            setIsOpen(prev => !prev);
+          };
+
+          window.addEventListener('togglePostListDrawer', handleDrawerToggle);
+          
+          return () => {
+            window.removeEventListener('togglePostListDrawer', handleDrawerToggle);
+          };
+        }, []);
+
+        const handleClose = () => {
+          setIsOpen(false);
+        };
+
+        return React.createElement(Drawer, {
+          isOpen,
+          onClose: handleClose,
+          title: "文章列表"
+        }, React.createElement(PostListDrawer, {
+          onItemClick: handleClose
+        }));
+      }
+
+      // 渲染抽屉组件
+      const container = document.getElementById('mobile-drawer-container');
+      if (container) {
+        const root = createRoot(container);
+        root.render(React.createElement(DrawerApp));
+      }
+
+      // 全局函数：切换抽屉状态
+      window.togglePostListDrawer = () => {
+        window.dispatchEvent(new CustomEvent('togglePostListDrawer'));
+      };
+
+    } catch (error) {
+      console.error('Failed to initialize drawer:', error);
+    }
+  }
+
+  // 页面加载完成后初始化抽屉
+  document.addEventListener('DOMContentLoaded', initializeDrawer);
+
   // 创建一个观察器来检测页面顶部
   const observer = new IntersectionObserver(
     ([entry]) => {
