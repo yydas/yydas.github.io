@@ -2,8 +2,8 @@
 import { getCollection } from "astro:content";
 
 interface Props {
-  posts?: any[];
-  postCount?: number;
+	posts?: any[];
+	postCount?: number;
 }
 
 const { posts, postCount = 10 } = Astro.props;
@@ -13,9 +13,9 @@ const allPosts = posts || (await getCollection("post"));
 const recentPosts = allPosts.slice(0, postCount);
 
 const formatter = new Intl.DateTimeFormat("zh-CN", {
-  year: "numeric",
-  month: "long",
-  day: "numeric",
+	year: "numeric",
+	month: "long",
+	day: "numeric",
 });
 ---
 

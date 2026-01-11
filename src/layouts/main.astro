@@ -3,6 +3,9 @@ import Footer from "../components/footer.astro";
 import Header from "../components/header.astro";
 import SquareLines from "../components/square-lines.astro";
 import DefaultDock from "../components/Dock.jsx";
+import "../styles/globals.css";
+import "katex/dist/katex.min.css";
+
 const { title } = Astro.props;
 ---
 
@@ -38,8 +41,9 @@ const { title } = Astro.props;
     <SquareLines />
     <Header />
     <slot />
-    <DefaultDock client:load className="" />
+    <DefaultDock client:load items={undefined} className="" />
     <Footer />
+    
     <script src="../assets/js/main.js"></script>
     <script>
       // 确保抽屉切换函数在全局可用
@@ -58,6 +62,22 @@ const { title } = Astro.props;
         }
       });
     </script>
+    
+    <!-- 初始化 Lenis 平滑滚动 -->
+    <script>
+      import { initSmoothScroll } from '../scripts/smooth-scroll'
+      
+      // 等待 DOM 完全加载
+      document.addEventListener('DOMContentLoaded', () => {
+        const lenis = initSmoothScroll()
+        
+        // 暴露到全局，方便其他脚本使用
+        if (lenis) {
+          window.lenis = lenis
+        }
+      })
+    </script>
+    
     <Fragment set:html={import.meta.env.FOOTER_INJECT} />
   </body>
 </html>

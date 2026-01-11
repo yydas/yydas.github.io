@@ -2,7 +2,7 @@
 title: "AI能力封装到业务系统：3类方案与落地实践指南"
 description: "本文结合企业B端产品落地经验，详细拆解AI能力封装到已有业务系统的三类核心方案，包含流程融合、聚合助手、入口导流的优缺点及落地要点，助力实现AI与业务高效协同。"
 dateFormatted: "2025-08-13"
-image: "/assets/images/projects/ai-business-integration.png"
+image: "https://sh-blog-next.vercel.app/assets/layouts/homepage/samhacker_homepage_background.png"
 tags: ["AI落地", "B端产品", "业务系统集成", "AI能力封装"]
 ---
 

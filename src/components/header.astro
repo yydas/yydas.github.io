@@ -4,15 +4,15 @@
  const { message = false } = Astro.props;
  ---
  
- <!-- This is an invisible div with relative position so that it takes up the height of the menu (because menu is absolute/fixed) -->
- <div class="relative w-full h-20 opacity-0 pointer-events-none"></div>
+ <!-- Spacer to prevent content from hiding under fixed header -->
+ <div class="h-[100px]"></div>
  <header
    id="header"
-   class="absolute top-0 z-50 w-full h-20"
+   class="fixed top-5 left-0 right-0 z-50 px-4 transition-all duration-300"
    data-message={message.toString()}
  >
    <div
-     class="flex items-center justify-between h-full max-w-5xl pl-6 pr-4 mx-auto border-b border-l-0 border-r-0 border-transparent select-none lg:border-r lg:border-l lg:rounded-b-xl"
+     class="flex items-center justify-between h-14 max-w-5xl mx-auto px-6 border border-neutral-300/50 bg-white/80 dark:border-neutral-600/40 dark:bg-neutral-900/60 backdrop-blur-2xl select-none rounded-full"
    >
      <Logo />
      <div
@@ -54,7 +54,7 @@
        </div>
        <div
          id="menu"
-         class="fixed top-[75px] ease-out duration-300 sm:top-0 w-full left-0 sm:py-0 pt-7 pb-4 dm:mx-0 left-0 z-40 flex-col items-end justify-start hidden w-full h-auto text-sm sm:text-base sm:h-auto sm:relative sm:flex-row sm:flex sm:text-sm sm:w-auto sm:pr-0 sm:pt-0"
+         class="fixed top-[80px] ease-out duration-300 sm:top-0 left-0 sm:py-0 pt-7 pb-4 z-40 flex-col items-end justify-start hidden w-full h-auto sm:h-auto sm:relative sm:flex-row sm:flex sm:text-sm sm:w-auto sm:pr-0 sm:pt-0"
        >
          <div
            class="absolute inset-0 top-0 right-0 block w-full h-full px-3 sm:hidden"

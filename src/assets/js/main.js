@@ -2,21 +2,13 @@
 
 window.darkMode = false;
 
-const stickyClasses = ["fixed", "h-14"];
-const unstickyClasses = ["absolute", "h-20"];
-const stickyClassesContainer = [
-	"border-neutral-300/50",
-	"bg-white/80",
-	"dark:border-neutral-600/40",
-	"dark:bg-neutral-900/60",
-	"backdrop-blur-2xl",
-];
-const unstickyClassesContainer = ["border-transparent"];
 let headerElement = null;
-let message = false; // 全局变量
+let message = false;
+
 document.addEventListener("DOMContentLoaded", () => {
 	headerElement = document.getElementById("header");
-	message = headerElement.getAttribute('data-message') == 'true';
+	message = headerElement.getAttribute("data-message") === "true";
+	
 	if (
 		localStorage.getItem("dark_mode") &&
 		localStorage.getItem("dark_mode") === "true"
@@ -26,49 +18,12 @@ document.addEventListener("DOMContentLoaded", () => {
 	} else {
 		showDay();
 	}
-	stickyHeaderFuncionality();
+	
 	applyMenuItemClasses();
-	evaluateHeaderPosition();
 	mobileMenuFunctionality();
 });
 
-// window.toggleDarkMode = function(){
-//     document.documentElement.classList.toggle('dark');
-//     if(document.documentElement.classList.contains('dark')){
-//         localStorage.setItem('dark_mode', true);
-//         window.darkMode = true;
-//     } else {
-//         window.darkMode = false;
-//         localStorage.setItem('dark_mode', false);
-//     }
-// }
-
-window.stickyHeaderFuncionality = () => {
-	window.addEventListener("scroll", () => {
-		evaluateHeaderPosition();
-	});
-};
-
-window.evaluateHeaderPosition = () => {
-	if (message==true || window.scrollY > 16) {
-		headerElement.firstElementChild.classList.add(...stickyClassesContainer);
-		headerElement.firstElementChild.classList.remove(
-			...unstickyClassesContainer,
-		);
-		headerElement.classList.add(...stickyClasses);
-		headerElement.classList.remove(...unstickyClasses);
-		document.getElementById("menu").classList.add("top-[56px]");
-		document.getElementById("menu").classList.remove("top-[75px]");
-	} else {
-		headerElement.firstElementChild.classList.remove(...stickyClassesContainer);
-		headerElement.firstElementChild.classList.add(...unstickyClassesContainer);
-		headerElement.classList.add(...unstickyClasses);
-		headerElement.classList.remove(...stickyClasses);
-		document.getElementById("menu").classList.remove("top-[56px]");
-		document.getElementById("menu").classList.add("top-[75px]");
-	}
-};
-
+// Dark mode toggle
 document.getElementById("darkToggle").addEventListener("click", () => {
 	document.documentElement.classList.add("duration-300");
 

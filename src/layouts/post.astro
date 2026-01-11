@@ -1,8 +1,10 @@
 ---
 import Layout from "./main.astro";
 import Navigation from "src/components/Navigation.astro";
-import TableOfContents from "src/components/TableOfContents.astro";
-import PostList from "src/components/PostList.astro";
+import TableOfContentsWrapper from "src/components/TableOfContentsWrapper.astro";
+import PostListWrapper from "src/components/PostListWrapper.astro";
+import Aurora from "src/components/AuroraBackground";
+import { getCollection } from "astro:content";
 
 interface Props {
   entry: any;
@@ -10,6 +12,12 @@ interface Props {
 }
 
 const { entry, headings } = Astro.props;
+
+// 获取所有文章和项目数据
+const posts = await getCollection("post");
+const projects = await getCollection("project");
+const currentPath = Astro.url.pathname;
+const isProjectPage = currentPath.startsWith('/project/');
 
 // 创建日期格式化器
 const formatter = new Intl.DateTimeFormat("zh-CN", {
@@ -28,66 +36,86 @@ function calculateReadingTime(content: string) {
 ---
 
 <Layout title={entry.data.title}>
-  <main
-    class="relative z-30 max-w-[90rem] pb-1 mx-auto mt-10 md:rounded-t-md text-neutral-900"
-  >
-    <div class="flex">
-      <!-- Left Sidebar - Post List -->
-      <aside class="hidden xl:block w-64 min-h-screen">
-        <div class="post-list-container">
-          <h3 class="text-lg font-semibold mb-4 dark:text-neutral-50">文章列表</h3>
-          <PostList />
-        </div>
-      </aside>
+  <!-- 背景图片或 Aurora 背景 - 固定在顶部 -->
+  <div class="fixed top-0 left-0 w-full h-[50vh] z-0 overflow-hidden">
+    {entry.data.image ? (
+      <>
+        <img 
+          src={entry.data.image} 
+          alt={entry.data.title}
+          class="w-full h-full object-cover object-center"
+        />
+        <div class="absolute inset-0 bg-gradient-to-b from-background/10 via-background/80 to-background dark:from-black/40 dark:via-black/60 dark:to-background"></div>
+      </>
+    ) : (
+      <>
+        <Aurora 
+          client:load
+          color1="#fff"
+          color2="#fff"
+          speed={0.5}
+          blend={0.6}
+        />
+        <div class="absolute inset-0 bg-gradient-to-b from-transparent via-background/60 to-background"></div>
+      </>
+    )}
+  </div>
 
-      <!-- Main Content -->
-      <div class="flex-1">
-        <div
-          class="relative flex flex-col px-5 lg:px-0 justify-stretch"
-        >
-          
-          <h1
-            class="w-full max-w-2xl mx-auto text-3xl font-bold leading-tight tracking-tighter text-left md:mb-6 md:text-4xl dark:text-neutral-100 lg:text-5xl md:leading-none"
-          >
-            {entry.data.title}
-          </h1>
-          <div class="w-full max-w-2xl mx-auto mb-4 text-sm text-neutral-500 text-left">
-            <span>{formatter.format(new Date(entry.data.dateFormatted))}</span>
-            <span class="mx-2">•</span>
-            <span>{calculateReadingTime(entry.data.description)} 阅读</span>
+  <main class="relative z-10 min-h-screen">
+    <!-- 标题区域 - 覆盖在背景图上 -->
+    <div class="relative z-20 min-h-[50vh] flex justify-center">
+      <div class="w-full max-w-4xl mx-auto absolute bottom-10 px-4 xl:px-0">
+        <h1 class="text-2xl lg:text-3xl font-bold leading-tight text-black dark:text-white mb-4">
+          {entry.data.title}
+        </h1>
+        <div class="text-sm text-black/95 dark:text-white/95 mb-6">
+          <span>{formatter.format(new Date(entry.data.dateFormatted))}</span>
+          <span class="mx-2">•</span>
+          <span>{calculateReadingTime(entry.data.description)} 阅读</span>
+        </div>
+        {entry.data.tags && entry.data.tags.length > 0 && (
+          <div class="flex flex-wrap gap-2">
+            {entry.data.tags.map((tag: string) => (
+              <a
+                href={`/tags/${tag}`}
+                class="px-3.5 py-1.5 text-sm rounded-full bg-black/80 dark:bg-white/15 backdrop-blur-md text-white border border-black/40 dark:border-white/20 transition-all duration-200 hover:bg-black/90 dark:hover:bg-white/25 hover:-translate-y-0.5"
+                style="text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);"
+              >
+                #{tag}
+              </a>
+            ))}
           </div>
-          {entry.data.tags && entry.data.tags.length > 0 && (
-            <div class="w-full max-w-2xl mx-auto mb-12 flex flex-wrap gap-2">
-              {entry.data.tags.map((tag: string) => (
-                <a
-                  href={`/tags/${tag}`}
-                  class="px-3 py-1 text-sm rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors"
-                >
-                  #{tag}
-                </a>
-              ))}
-            </div>
-          )}
-        </div>
-
-        <div class="flex gap-8 px-4 lg:px-8">
-          <article
-            class="w-full font-sans max-w-2xl mx-auto mb-20 prose-sm prose lg:prose-lg dark:prose-invert prose-pre:bg-white"
-          >
-            <slot />
-          </article>
-        </div>
-        
-        <Navigation />
+        )}
       </div>
+    </div>
 
-      <!-- Right Sidebar - Table of Contents -->
-      <aside class="hidden xl:block w-64 min-h-screen">
-        <div class="post-list-container">
-          <h3 class="text-lg font-semibold mb-4 dark:text-neutral-200">页面导航</h3>
-          <TableOfContents headings={headings} />
-        </div>
-      </aside>
+    <!-- 内容区域 -->
+    <div class="relative z-20 bg-background min-h-screen">
+      <div class="grid grid-cols-1 xl:grid-cols-[240px_1fr_240px] gap-8 mx-auto px-4 xl:px-8 py-12 xl:py-16">
+        <!-- Left Sidebar - Post List -->
+        <aside class="hidden xl:block">
+          <div class="sidebar-container p-4 rounded-lg transition-all duration-300 max-h-[calc(100vh-6rem)] overflow-y-auto" id="left-sidebar">
+            <h5 class="text-xs font-semibold mb-4 text-foreground uppercase tracking-wider ml-5">文章目录</h5>
+            <PostListWrapper />
+          </div>
+        </aside>
+
+        <!-- Main Content -->
+        <article class="w-full max-w-4xl mx-auto">
+          <div class="mb-16 prose dark:prose-invert max-w-none">
+            <slot />
+          </div>
+          <Navigation />
+        </article>
+
+        <!-- Right Sidebar - Table of Contents -->
+        <aside class="hidden xl:block">
+          <div class="sidebar-container p-4 rounded-lg transition-all duration-300 max-h-[calc(100vh-6rem)] overflow-y-auto" id="right-sidebar">
+            <h3 class="text-xs font-semibold mb-4 text-foreground uppercase tracking-wider">页面导航</h3>
+            <TableOfContentsWrapper headings={headings} />
+          </div>
+        </aside>
+      </div>
     </div>
   </main>
 
@@ -95,23 +123,178 @@ function calculateReadingTime(content: string) {
   <div id="mobile-drawer-container"></div>
 </Layout>
 
+<!-- Mermaid 初始化脚本 -->
+<script>
+  import mermaid from "mermaid";
+
+  // 等待 DOM 加载完成
+  const initMermaid = async () => {
+  
+    
+    const isDark = document.documentElement.classList.contains("dark");
+
+    // 初始化 Mermaid
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: isDark ? "dark" : "default",
+      securityLevel: "loose",
+      themeVariables: {
+        darkMode: isDark,
+      },
+    });
+
+    // 查找包含 mermaid 关键字的代码块
+    const allCodeBlocks = document.querySelectorAll("pre code");
+    const mermaidBlocks = Array.from(allCodeBlocks).filter(code => {
+      const classes = code.className || "";
+      const content = code.textContent || "";
+      // 检查类名或内容是否包含 mermaid
+      return classes.includes("mermaid") || 
+             content.trim().startsWith("graph") ||
+             content.trim().startsWith("sequenceDiagram") ||
+             content.trim().startsWith("classDiagram") ||
+             content.trim().startsWith("stateDiagram") ||
+             content.trim().startsWith("erDiagram") ||
+             content.trim().startsWith("gantt") ||
+             content.trim().startsWith("pie") ||
+             content.trim().startsWith("journey");
+    });
+
+    console.log(`Total mermaid blocks found: ${mermaidBlocks.length}`);
+
+    for (let i = 0; i < mermaidBlocks.length; i++) {
+      const block = mermaidBlocks[i];
+      const code = block.textContent || "";
+      console.log(`Processing block ${i + 1}:`, code.slice(0, 50));
+      
+      // 找到包含代码的 pre 元素
+      const pre = block.closest("pre");
+      
+      if (pre && !pre.classList.contains("mermaid-rendered")) {
+        try {
+          const id = `mermaid-${Math.random().toString(36).substr(2, 9)}`;
+          const { svg } = await mermaid.render(id, code);
+
+          // 创建容器并替换
+          const container = document.createElement("div");
+          container.className = "mermaid-container my-6 flex justify-center";
+          container.innerHTML = svg;
+
+          pre.replaceWith(container);
+          pre.classList.add("mermaid-rendered");
+          console.log(`Successfully rendered block ${i + 1}`);
+        } catch (error) {
+          console.error(`Mermaid render error for block ${i + 1}:`, error);
+        }
+      }
+    }
+  };
+
+  // 页面加载时初始化
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initMermaid);
+  } else {
+    initMermaid();
+  }
+</script>
+
+<!-- 代码块复制功能 -->
+<script>
+  function initCodeCopy() {
+    // 为所有代码块添加复制按钮
+    const codeBlocks = document.querySelectorAll('.prose pre');
+    
+    codeBlocks.forEach((pre) => {
+      // 跳过已处理的或 mermaid 图表
+      if (pre.classList.contains('code-block-processed') || pre.classList.contains('mermaid-rendered')) {
+        return;
+      }
+
+      // 创建包装器
+      const wrapper = document.createElement('div');
+      wrapper.className = 'code-block-wrapper';
+      
+      // 创建复制按钮
+      const button = document.createElement('button');
+      button.className = 'copy-button';
+      button.textContent = 'Copy';
+      button.setAttribute('aria-label', 'Copy code to clipboard');
+      
+      // 复制功能
+      button.addEventListener('click', async () => {
+        const code = pre.querySelector('code');
+        const text = code?.textContent || '';
+        
+        try {
+          await navigator.clipboard.writeText(text);
+          button.textContent = 'Copied!';
+          button.classList.add('copied');
+          
+          setTimeout(() => {
+            button.textContent = 'Copy';
+            button.classList.remove('copied');
+          }, 2000);
+        } catch (err) {
+          console.error('Failed to copy:', err);
+          button.textContent = 'Failed';
+          setTimeout(() => {
+            button.textContent = 'Copy';
+          }, 2000);
+        }
+      });
+      
+      // 包装代码块
+      pre.parentNode?.insertBefore(wrapper, pre);
+      wrapper.appendChild(pre);
+      wrapper.appendChild(button);
+      
+      pre.classList.add('code-block-processed');
+    });
+  }
+
+  // 初始化
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCodeCopy);
+  } else {
+    initCodeCopy();
+  }
+
+  // 监听主题切换后重新初始化（如果需要）
+  document.addEventListener('astro:after-swap', initCodeCopy);
+</script>
+
 <style>
-  :global(.prose h1[id], .prose h2[id], .prose h3[id], .prose h4[id], .prose h5[id], .prose h6[id]) {
-    scroll-margin-top: 4rem;
-    font-weight: bold;
+  /* 侧边栏固定效果 */
+  .sidebar-container.fixed {
+    position: fixed;
+    top: 5rem;
+    z-index: 30;
   }
 
-  .post-list-container {
-    position: sticky;
-    margin-top: 108px;
-    padding: 1rem;
-    transition: margin-top 0.3s ease;
+  #left-sidebar.fixed {
+    width: 240px;
   }
 
-  .post-list-container.scrolled {
-    top: 80px;
+  #right-sidebar.fixed {
+    width: 240px;
+  }
+
+  /* Prose 标题滚动偏移 */
+  :global(.prose h1[id], 
+          .prose h2[id], 
+          .prose h3[id], 
+          .prose h4[id], 
+          .prose h5[id], 
+          .prose h6[id]) {
+    scroll-margin-top: 5rem;
   }
 </style>
+
+<script is:inline define:vars={{ posts, projects, currentPath, isProjectPage }}>
+  // 将数据存储到全局变量供 PostListDrawer 使用
+  window.__ASTRO_POSTS__ = posts;
+  window.__ASTRO_PROJECTS__ = projects;
+</script>
 
 <script>
   import { createRoot } from 'react-dom/client';
@@ -121,22 +304,18 @@ function calculateReadingTime(content: string) {
   async function initializeDrawer() {
     try {
       const [
-        { default: Drawer },
-        { default: PostListDrawer }
+        { default: MobileDrawer },
+        { PostListOptimized }
       ] = await Promise.all([
-        import('../components/Drawer.jsx'),
-        import('../components/PostListDrawer.jsx')
+        import('../components/MobileDrawer.jsx'),
+        import('../components/PostListOptimized')
       ]);
-
-      // 创建抽屉状态管理
-      let isDrawerOpen = false;
 
       // 抽屉组件
       function DrawerApp() {
         const [isOpen, setIsOpen] = React.useState(false);
 
         React.useEffect(() => {
-          // 监听全局抽屉状态变化
           const handleDrawerToggle = () => {
             setIsOpen(prev => !prev);
           };
@@ -152,23 +331,28 @@ function calculateReadingTime(content: string) {
           setIsOpen(false);
         };
 
-        return React.createElement(Drawer, {
-          isOpen,
-          onClose: handleClose,
-          title: "文章列表"
-        }, React.createElement(PostListDrawer, {
-          onItemClick: handleClose
-        }));
+        return React.createElement(
+          MobileDrawer,
+          {
+            isOpen,
+            onClose: handleClose,
+            title: "文章列表",
+            children: React.createElement(PostListOptimized, {
+              posts: window.__ASTRO_POSTS__ || [],
+              projects: window.__ASTRO_PROJECTS__ || [],
+              currentPath: window.location.pathname,
+              isProjectPage: window.location.pathname.startsWith('/project/')
+            })
+          }
+        );
       }
 
-      // 渲染抽屉组件
       const container = document.getElementById('mobile-drawer-container');
       if (container) {
         const root = createRoot(container);
         root.render(React.createElement(DrawerApp));
       }
 
-      // 全局函数：切换抽屉状态
       window.togglePostListDrawer = () => {
         window.dispatchEvent(new CustomEvent('togglePostListDrawer'));
       };
@@ -178,36 +362,54 @@ function calculateReadingTime(content: string) {
     }
   }
 
-  // 页面加载完成后初始化抽屉
-  document.addEventListener('DOMContentLoaded', initializeDrawer);
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeDrawer);
+  } else {
+    initializeDrawer();
+  }
 
-  // 创建一个观察器来检测页面顶部
-  const observer = new IntersectionObserver(
-    ([entry]) => {
-      const postListContainers = document.querySelectorAll('.post-list-container');
-      postListContainers.forEach(container => {
-        if (!entry.isIntersecting) {
-          container.classList.add('scrolled');
+  // 侧边栏滚动固定效果
+  function initSidebarScroll() {
+    const leftSidebar = document.getElementById('left-sidebar');
+    const rightSidebar = document.getElementById('right-sidebar');
+    const contentSection = document.querySelector('.bg-background.min-h-screen');
+    
+    if (!contentSection) return;
+
+    // 获取内容区域的初始位置
+    const contentTop = contentSection.getBoundingClientRect().top + window.scrollY;
+    const fixThreshold = contentTop - 40; // 距离顶部 80px 时固定
+
+    function handleScroll() {
+      const scrollY = window.scrollY;
+      const shouldFix = scrollY >= fixThreshold;
+      
+      if (leftSidebar) {
+        if (shouldFix) {
+          leftSidebar.classList.add('fixed');
         } else {
-          container.classList.remove('scrolled');
+          leftSidebar.classList.remove('fixed');
         }
-      });
-    },
-    {
-      threshold: 0,
-      rootMargin: "-1px 0px 0px 0px"
+      }
+      
+      if (rightSidebar) {
+        if (shouldFix) {
+          rightSidebar.classList.add('fixed');
+        } else {
+          rightSidebar.classList.remove('fixed');
+        }
+      }
     }
-  );
 
-  // 创建一个顶部标记元素来观察
-  const topMarker = document.createElement('div');
-  topMarker.style.height = '1px';
-  topMarker.style.width = '100%';
-  topMarker.style.position = 'absolute';
-  topMarker.style.top = '0';
-  topMarker.style.left = '0';
-  
-  // 将标记元素添加到文档中并开始观察
-  document.body.prepend(topMarker);
-  observer.observe(topMarker);
+    // 监听滚动事件
+    window.addEventListener('scroll', handleScroll);
+    // 初始检查
+    handleScroll();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initSidebarScroll);
+  } else {
+    initSidebarScroll();
+  }
 </script>

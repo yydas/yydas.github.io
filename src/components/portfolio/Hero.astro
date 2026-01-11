@@ -1,0 +1,63 @@
+---
+// Hero section for portfolio
+---
+
+<div class="hero-content space-y-10 mb-16">
+  <div class="flex flex-col gap-4">
+    <!-- Title with Inline Avatar -->
+    <h1 class="hero-line text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight flex items-center flex-wrap gap-x-3 gap-y-4 text-neutral-900 dark:text-neutral-100">
+      Hi, I'm 
+      <span class="inline-block relative group mx-2">
+        <div class="avatar-glow relative w-[1.25em] h-[1.25em] bg-white dark:bg-neutral-800 rounded-[28%] shadow-2xl overflow-hidden border-[4px] border-white dark:border-neutral-800 transform transition-all duration-500 ease-out group-hover:scale-110 group-hover:rotate-6 cursor-pointer">
+          <img 
+            src="https://i.pravatar.cc/300?u=alexcarter" 
+            alt="Alex Carter" 
+            class="w-full h-full object-cover grayscale transition-all duration-500 group-hover:grayscale-0" 
+          />
+        </div>
+      </span>
+      Alex Carter!
+    </h1>
+    
+    <div class="hero-line space-y-2">
+      <h2 class="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-neutral-600 dark:text-neutral-400">
+        I'm a <span class="text-neutral-900 dark:text-neutral-100">Product Lead</span> at
+      </h2>
+      <h3 class="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-orange-500 flex items-center flex-wrap gap-4">
+        Apple Design.
+        <div class="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-700 rounded-full text-sm font-medium text-neutral-900 dark:text-neutral-100 align-middle shadow-sm">
+          <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_8px_rgb(34,197,94)]"></span>
+          Open to work
+        </div>
+      </h3>
+    </div>
+  </div>
+
+  <div class="hero-line flex flex-col md:flex-row items-start md:items-center gap-6 pt-4">
+    <button class="px-8 py-4 bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 rounded-full font-semibold text-base hover:scale-105 transition-all shadow-lg active:scale-95">
+      Book a call
+    </button>
+    <p class="text-lg text-neutral-600 dark:text-neutral-400 max-w-lg leading-relaxed">
+      Feel free to explore my portfolio and reach out — I'd love to connect!
+    </p>
+  </div>
+</div>
+
+<script>
+  import gsap from 'gsap';
+
+  const animateHero = () => {
+    const tl = gsap.timeline();
+    tl.from('.hero-line', {
+      y: 40,
+      opacity: 0,
+      duration: 0.8,
+      stagger: 0.15,
+      ease: 'power4.out'
+    });
+  };
+
+  animateHero();
+  
+  document.addEventListener('astro:page-load', animateHero);
+</script>

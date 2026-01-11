@@ -2,10 +2,10 @@
 import { getCollection } from "astro:content";
 
 interface Props {
-  projects?: any[];
-  postCount?: number;
-  limit?: number;
-  directory?: string;
+	projects?: any[];
+	postCount?: number;
+	limit?: number;
+	directory?: string;
 }
 
 const { projects, postCount = 10, limit, directory } = Astro.props;
@@ -14,9 +14,9 @@ const { projects, postCount = 10, limit, directory } = Astro.props;
 const allProjects = projects || (await getCollection("project"));
 
 // 如果指定了目录，则过滤出该目录下的项目
-const filteredProjects = directory 
-  ? allProjects.filter(project => project.slug.startsWith(directory))
-  : allProjects;
+const filteredProjects = directory
+	? allProjects.filter((project) => project.slug.startsWith(directory))
+	: allProjects;
 
 // 优先使用 limit 参数，如果没有则使用 postCount
 const projectLimit = limit || postCount;

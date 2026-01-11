@@ -1,7 +1,7 @@
 ---
-import Layout from "../layouts/main.astro";
-import { parseCSVData, getCategories } from "../utils/csv";
 import linksData from "../data/links.csv?raw";
+import Layout from "../layouts/main.astro";
+import { getCategories, parseCSVData } from "../utils/csv";
 
 const links = parseCSVData(linksData);
 const categories = getCategories(links);

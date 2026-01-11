@@ -1,0 +1,15 @@
+---
+import { TableOfContentsOptimized } from "./TableOfContentsOptimized";
+
+interface Props {
+	headings: {
+		depth: number;
+		slug: string;
+		text: string;
+	}[];
+}
+
+const { headings } = Astro.props;
+---
+
+<TableOfContentsOptimized client:load headings={headings} />

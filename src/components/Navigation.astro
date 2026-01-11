@@ -2,7 +2,7 @@
 import { getCollection } from "astro:content";
 
 const currentPath = Astro.url.pathname;
-const isProjectPage = currentPath.startsWith('/project/');
+const isProjectPage = currentPath.startsWith("/project/");
 
 // 根据页面类型获取相应的集合
 const projects = await getCollection("project");
@@ -10,37 +10,43 @@ const posts = await getCollection("post");
 
 // 根据页面类型选择要显示的内容
 const items = (isProjectPage ? projects : posts) as Array<{
-  slug: string;
-  data: {
-    title: string;
-    dateFormatted: string;
-  };
+	slug: string;
+	data: {
+		title: string;
+		dateFormatted: string;
+	};
 }>;
 
 // 按日期排序（与PostList.astro保持一致）
 const sortedItems = items.sort((a, b) => {
-  if (a.data.dateFormatted && b.data.dateFormatted) {
-    return new Date(b.data.dateFormatted).getTime() - new Date(a.data.dateFormatted).getTime();
-  }
-  return a.data.title.localeCompare(b.data.title);
+	if (a.data.dateFormatted && b.data.dateFormatted) {
+		return (
+			new Date(b.data.dateFormatted).getTime() -
+			new Date(a.data.dateFormatted).getTime()
+		);
+	}
+	return a.data.title.localeCompare(b.data.title);
 });
 
 // 将内容按文件夹分组（与PostList.astro保持一致）
-const groupedItems = sortedItems.reduce((groups, item) => {
-  const parts = item.slug.split('/');
-  const folder = parts.length > 1 ? parts[0] : '其他';
-  if (!groups[folder]) {
-    groups[folder] = [];
-  }
-  groups[folder].push(item);
-  return groups;
-}, {} as Record<string, typeof items>);
+const groupedItems = sortedItems.reduce(
+	(groups, item) => {
+		const parts = item.slug.split("/");
+		const folder = parts.length > 1 ? parts[0] : "其他";
+		if (!groups[folder]) {
+			groups[folder] = [];
+		}
+		groups[folder].push(item);
+		return groups;
+	},
+	{} as Record<string, typeof items>,
+);
 
 // 对分组进行排序（与PostList.astro保持一致）
 const sortedGroups = Object.entries(groupedItems).sort(([a], [b]) => {
-  if (a === '其他') return -1;
-  if (b === '其他') return 1;
-  return a.localeCompare(b);
+	if (a === "其他") return -1;
+	if (b === "其他") return 1;
+	return a.localeCompare(b);
 });
 
 // 将分组后的内容重新展开为扁平数组，保持分组内的顺序
@@ -48,13 +54,15 @@ const flattenedItems = sortedGroups.flatMap(([folder, items]) => items);
 
 // 从URL路径中提取slug部分
 // 例如: /project/rizhi/111/ -> rizhi/111 或 /post/welcome/ -> welcome
-const pathSegments = currentPath.split('/').filter(Boolean);
+const pathSegments = currentPath.split("/").filter(Boolean);
 // 对路径段进行URL解码，处理中文字符
-const decodedSegments = pathSegments.map(segment => decodeURIComponent(segment));
-const currentSlug = decodedSegments.slice(1).join('/'); // 跳过第一个段（project或post）
+const decodedSegments = pathSegments.map((segment) =>
+	decodeURIComponent(segment),
+);
+const currentSlug = decodedSegments.slice(1).join("/"); // 跳过第一个段（project或post）
 
 const currentIndex = flattenedItems.findIndex((item) => {
-  return item.slug === currentSlug;
+	return item.slug === currentSlug;
 });
 
 const nextItem = flattenedItems[currentIndex - 1];
@@ -65,17 +73,17 @@ const nextText = isProjectPage ? "Next Project" : "Next Post";
 const prevText = isProjectPage ? "Previous Project" : "Previous Post";
 ---
 
-<nav class="col-start-2 grid grid-cols-1 gap-4 sm:grid-cols-2 max-w-2xl mx-auto px-4 lg:px-0">
+<nav class="col-start-2 grid grid-cols-1 gap-4 sm:grid-cols-2 max-w-4xl mx-auto lg:px-0">
   {
     nextItem ? (
       <a 
         href={`/${isProjectPage ? 'project' : 'post'}/${nextItem.slug}/`} 
-        class="group flex items-center justify-start gap-2 rounded-xl border bg-background px-4 py-2 text-sm font-medium transition-all hover:bg-neutral-100 hover:text-accent-foreground dark:border-neutral-800 dark:bg-neutral-950 dark:hover:bg-neutral-900"
+        class="group flex items-center justify-start gap-2 rounded-xl border border-border bg-card px-4 py-2 text-sm font-medium transition-all hover:bg-accent hover:text-accent-foreground"
       >
         <svg 
           width="1em" 
           height="1em" 
-          class="size-4 transition-transform group-hover:-translate-x-1 text-foreground dark:text-neutral-300" 
+          class="size-4 transition-transform group-hover:-translate-x-1 text-foreground" 
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -86,8 +94,8 @@ const prevText = isProjectPage ? "Previous Project" : "Previous Post";
           <path d="m12 19l-7-7l7-7m7 7H5" />
         </svg>
         <div class="flex flex-col items-start">
-          <span class="text-xs text-muted-foreground text-neutral-500">{nextText}</span>
-          <span class="text-sm truncate dark:text-neutral-200">{nextItem.data.title}</span>
+          <span class="text-xs text-muted-foreground">{nextText}</span>
+          <span class="text-sm truncate text-foreground">{nextItem.data.title}</span>
         </div>
       </a>
     ) : (
@@ -98,16 +106,16 @@ const prevText = isProjectPage ? "Previous Project" : "Previous Post";
     prevItem ? (
       <a 
         href={`/${isProjectPage ? 'project' : 'post'}/${prevItem.slug}/`} 
-        class="group flex items-center justify-end gap-2 rounded-xl border bg-background px-4 py-2 text-sm font-medium transition-all hover:bg-neutral-100 hover:text-accent-foreground dark:border-neutral-800 dark:bg-neutral-950 dark:hover:bg-neutral-900"
+        class="group flex items-center justify-end gap-2 rounded-xl border border-border bg-card px-4 py-2 text-sm font-medium transition-all hover:bg-accent hover:text-accent-foreground"
       >
         <div class="flex flex-col items-end">
-          <span class="text-xs text-muted-foreground text-neutral-500">{prevText}</span>
-          <span class="text-sm truncate dark:text-neutral-200">{prevItem.data.title}</span>
+          <span class="text-xs text-muted-foreground">{prevText}</span>
+          <span class="text-sm truncate text-foreground">{prevItem.data.title}</span>
         </div>
         <svg 
           width="1em" 
           height="1em" 
-          class="size-4 transition-transform group-hover:translate-x-1 text-foreground dark:text-neutral-300" 
+          class="size-4 transition-transform group-hover:translate-x-1 text-foreground" 
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"

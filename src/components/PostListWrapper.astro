@@ -1,0 +1,19 @@
+---
+import { getCollection } from "astro:content";
+import { PostListOptimized } from "./PostListOptimized";
+
+const posts = await getCollection("post");
+const projects = await getCollection("project");
+const currentPath = Astro.url.pathname;
+
+// 判断当前是否在项目页面
+const isProjectPage = currentPath.startsWith("/project/");
+---
+
+<PostListOptimized 
+  client:load
+  posts={posts}
+  projects={projects}
+  currentPath={currentPath}
+  isProjectPage={isProjectPage}
+/>
