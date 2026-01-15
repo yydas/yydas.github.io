@@ -20,7 +20,7 @@ class InfiniteGrid {
 
 		// 滚动状态管理
 		this.scroll = {
-			ease: 0.06,
+			ease: 0.12,           // 提高缓动系数，响应更快
 			current: { x: 0, y: 0 },
 			target: { x: 0, y: 0 },
 			last: { x: 0, y: 0 },
@@ -337,14 +337,20 @@ class InfiniteGrid {
 		this.scroll.delta.x.t = this.scroll.current.x - this.scroll.last.x;
 		this.scroll.delta.y.t = this.scroll.current.y - this.scroll.last.y;
 		this.scroll.delta.x.c +=
-			(this.scroll.delta.x.t - this.scroll.delta.x.c) * 0.04;
+			(this.scroll.delta.x.t - this.scroll.delta.x.c) * 0.08;
 		this.scroll.delta.y.c +=
-			(this.scroll.delta.y.t - this.scroll.delta.y.c) * 0.04;
+			(this.scroll.delta.y.t - this.scroll.delta.y.c) * 0.08;
 
 		// 更新鼠标位置
-		this.mouse.x.c += (this.mouse.x.t - this.mouse.x.c) * 0.04;
-		this.mouse.y.c += (this.mouse.y.t - this.mouse.y.c) * 0.04;
-		this.mouse.press.c += (this.mouse.press.t - this.mouse.press.c) * 0.04;
+		this.mouse.x.c += (this.mouse.x.t - this.mouse.x.c) * 0.08;
+		this.mouse.y.c += (this.mouse.y.t - this.mouse.y.c) * 0.08;
+		this.mouse.press.c += (this.mouse.press.t - this.mouse.press.c) * 0.08;
+
+		// 检查是否需要更新（脏检查优化）
+		const isScrolling = Math.abs(this.scroll.delta.x.t) > 0.01 || 
+		                    Math.abs(this.scroll.delta.y.t) > 0.01;
+		const isMouseMoving = Math.abs(this.mouse.x.t - this.mouse.x.c) > 0.001 ||
+		                      Math.abs(this.mouse.y.t - this.mouse.y.c) > 0.001;
 
 		// 确定滚动方向
 		const dirX = this.scroll.current.x > this.scroll.last.x ? "right" : "left";
@@ -377,16 +383,18 @@ class InfiniteGrid {
 			if (dirY === "down" && beforeY) item.extraY -= this.tileSize.h;
 			if (dirY === "up" && afterY) item.extraY += this.tileSize.h;
 
-			// 应用最终位置
+			// 应用最终位置 - 使用 translate3d 强制 GPU 加速
 			const fx = item.x + scrollX + item.extraX + newX;
 			const fy = item.y + scrollY + item.extraY + newY;
-			item.el.style.transform = `translate(${fx}px, ${fy}px)`;
+			item.el.style.transform = `translate3d(${fx}px, ${fy}px, 0)`;
 
-			// 应用图片的缩放和视差效果
-			const scale = 1.2 + 0.2 * this.mouse.press.c * item.ease;
-			const translateX = -this.mouse.x.c * item.ease * 10;
-			const translateY = -this.mouse.y.c * item.ease * 10;
-			item.img.style.transform = `scale(${scale}) translate(${translateX}%, ${translateY}%)`;
+			// 仅在有交互时更新图片变换
+			if (isScrolling || isMouseMoving || this.mouse.press.c > 0.01) {
+				const scale = 1.2 + 0.2 * this.mouse.press.c * item.ease;
+				const translateX = -this.mouse.x.c * item.ease * 10;
+				const translateY = -this.mouse.y.c * item.ease * 10;
+				item.img.style.transform = `scale(${scale}) translate3d(${translateX}%, ${translateY}%, 0)`;
+			}
 		});
 
 		// 更新上一帧的滚动位置

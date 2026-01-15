@@ -81,6 +81,23 @@ html.lenis body {
   pointer-events: none;
 }
 
+/* GPU 加速优化 - 减少滚动卡顿 */
+.item {
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.item-wrapper {
+  will-change: transform;
+}
+
+.item-image img {
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
 /* GitHub Markdown 样式 - 基于 github-markdown-css */
 @layer components {
 

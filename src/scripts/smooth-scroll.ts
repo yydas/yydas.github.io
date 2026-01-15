@@ -10,15 +10,15 @@ export function initSmoothScroll() {
 
   // 创建 Lenis 实例
   const lenis = new Lenis({
-    duration: 1.2,            // 滚动持续时间
-    easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // easeOutExpo
-    orientation: 'vertical',  // 垂直滚动
+    duration: 0.8,            // 缩短滚动持续时间，减少拖沓感
+    easing: (t) => 1 - Math.pow(1 - t, 3), // easeOutCubic，更轻快的缓动
+    orientation: 'vertical',
     gestureOrientation: 'vertical',
-    smoothWheel: true,        // 平滑鼠标滚轮
-    wheelMultiplier: 1,       // 滚轮速度倍数
-    smoothTouch: false,       // 移动端建议关闭以保持原生体验
+    smoothWheel: true,
+    wheelMultiplier: 1,
     touchMultiplier: 2,
     infinite: false,
+    lerp: 0.1,                // 线性插值系数，值越大响应越快
   })
 
   // 同步 Lenis 和 GSAP ScrollTrigger
@@ -29,7 +29,8 @@ export function initSmoothScroll() {
     lenis.raf(time * 1000)
   })
 
-  gsap.ticker.lagSmoothing(0)
+  // 启用延迟平滑，在帧率波动时提供更平滑的体验
+  gsap.ticker.lagSmoothing(500, 33)
 
   return lenis
 }
