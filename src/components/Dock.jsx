@@ -94,6 +94,7 @@ export default function DefaultDock({ items, className, ...props }) {
 	const [isDarkMode, setIsDarkMode] = useState(false);
 	const [showScrollTop, setShowScrollTop] = useState(false);
 	const [isDetailPage, setIsDetailPage] = useState(false);
+	const [isMobile, setIsMobile] = useState(false);
 
 	useEffect(() => {
 		// 检查当前主题
@@ -115,6 +116,11 @@ export default function DefaultDock({ items, className, ...props }) {
 			setIsDetailPage(isDetail);
 		};
 
+		// 检查是否为移动端
+		const checkMobile = () => {
+			setIsMobile(window.innerWidth < 1280); // xl breakpoint
+		};
+
 		// 检查滚动位置
 		const checkScroll = () => {
 			const scrollTop =
@@ -127,6 +133,7 @@ export default function DefaultDock({ items, className, ...props }) {
 		// 初始检查
 		checkTheme();
 		checkDetailPage();
+		checkMobile();
 		checkScroll();
 
 		// 监听主题变化
@@ -138,6 +145,9 @@ export default function DefaultDock({ items, className, ...props }) {
 
 		// 监听滚动
 		window.addEventListener("scroll", checkScroll);
+
+		// 监听窗口大小变化
+		window.addEventListener("resize", checkMobile);
 
 		// 监听路由变化
 		const handleRouteChange = () => {
@@ -151,6 +161,7 @@ export default function DefaultDock({ items, className, ...props }) {
 		return () => {
 			observer.disconnect();
 			window.removeEventListener("scroll", checkScroll);
+			window.removeEventListener("resize", checkMobile);
 			window.removeEventListener("popstate", handleRouteChange);
 		};
 	}, []);
@@ -179,6 +190,35 @@ export default function DefaultDock({ items, className, ...props }) {
 						),
 						label: "返回",
 						action: () => window.history.back(),
+					},
+				]
+			: []),
+		// 移动端菜单按钮 - 只在详情页且小屏幕时显示
+		...(isDetailPage && isMobile
+			? [
+					{
+						id: "mobile-menu",
+						icon: (
+							<svg
+								className="w-5 h-5"
+								fill="none"
+								stroke="currentColor"
+								viewBox="0 0 24 24"
+							>
+								<path
+									strokeLinecap="round"
+									strokeLinejoin="round"
+									strokeWidth={2}
+									d="M4 6h16M4 12h16M4 18h16"
+								/>
+							</svg>
+						),
+						label: "文章列表",
+						action: () => {
+							if (window.togglePostListDrawer) {
+								window.togglePostListDrawer();
+							}
+						},
 					},
 				]
 			: []),

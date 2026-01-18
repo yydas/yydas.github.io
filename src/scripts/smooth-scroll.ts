@@ -10,7 +10,7 @@ export function initSmoothScroll() {
 
   // 创建 Lenis 实例
   const lenis = new Lenis({
-    duration: 0.8,            // 缩短滚动持续时间，减少拖沓感
+    duration: 0.5,            // 缩短滚动持续时间，减少拖沓感
     easing: (t) => 1 - Math.pow(1 - t, 3), // easeOutCubic，更轻快的缓动
     orientation: 'vertical',
     gestureOrientation: 'vertical',
@@ -31,6 +31,9 @@ export function initSmoothScroll() {
 
   // 启用延迟平滑，在帧率波动时提供更平滑的体验
   gsap.ticker.lagSmoothing(500, 33)
+
+  // 将 Lenis 实例挂载到 window 对象，供其他组件使用
+  ;(window as any).lenis = lenis
 
   return lenis
 }

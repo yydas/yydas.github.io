@@ -3,7 +3,7 @@ import Layout from "./main.astro";
 import Navigation from "src/components/Navigation.astro";
 import TableOfContentsWrapper from "src/components/TableOfContentsWrapper.astro";
 import PostListWrapper from "src/components/PostListWrapper.astro";
-import Aurora from "src/components/AuroraBackground";
+import ParticleRing from "src/components/ParticleRing.astro";
 import { getCollection } from "astro:content";
 
 interface Props {
@@ -45,26 +45,28 @@ function calculateReadingTime(content: string) {
           alt={entry.data.title}
           class="w-full h-full object-cover object-center"
         />
-        <div class="absolute inset-0 bg-gradient-to-b from-background/10 via-background/80 to-background dark:from-black/40 dark:via-black/60 dark:to-background"></div>
       </>
     ) : (
       <>
-        <Aurora 
-          client:load
-          color1="#fff"
-          color2="#fff"
-          speed={0.5}
-          blend={0.6}
-        />
-        <div class="absolute inset-0 bg-gradient-to-b from-transparent via-background/60 to-background"></div>
+        <ParticleRing />
       </>
     )}
   </div>
 
   <main class="relative z-10 min-h-screen">
     <!-- 标题区域 - 覆盖在背景图上 -->
-    <div class="relative z-20 min-h-[50vh] flex justify-center">
-      <div class="w-full max-w-4xl mx-auto absolute bottom-10 px-4 xl:px-0">
+    <div class="relative z-20 top-[-100px] min-h-[50vh] flex justify-center inset-0">
+       {entry.data.image ? (
+      <>
+      <!-- 使用缓动曲线渐变减少波浪纹 - Scrim Gradient 技术 -->
+        <div class="absolute inset-0 gradient-scrim backdrop-blur-lg"></div>
+      </>
+    ) : (
+      <>
+       <div class="absolute"></div>
+      </>
+    )}
+      <div class="w-full max-w-4xl mx-auto absolute bottom-0 px-4 xl:px-0 z-10">
         <h1 class="text-2xl lg:text-3xl font-bold leading-tight text-black dark:text-white mb-4">
           {entry.data.title}
         </h1>
@@ -90,7 +92,7 @@ function calculateReadingTime(content: string) {
     </div>
 
     <!-- 内容区域 -->
-    <div class="relative z-20 bg-background min-h-screen">
+    <div class="relative z-20 bg-background min-h-screen mt-[-100px]">
       <div class="grid grid-cols-1 xl:grid-cols-[240px_1fr_240px] gap-8 mx-auto px-4 xl:px-8 py-12 xl:py-16">
         <!-- Left Sidebar - Post List -->
         <aside class="hidden xl:block">
@@ -264,6 +266,54 @@ function calculateReadingTime(content: string) {
 </script>
 
 <style>
+  /* Scrim Gradient - 使用缓动曲线消除波浪纹 */
+  /* 基于 Andreas Larsen 的研究: https://css-tricks.com/easing-linear-gradients/ */
+  /* 使用项目主色 --background */
+  .gradient-scrim {
+    background: linear-gradient(
+      to bottom,
+      hsla(0, 0%, 100%, 0) 0%,
+      hsla(0, 0%, 100%, 0.013) 8.1%,
+      hsla(0, 0%, 100%, 0.049) 15.5%,
+      hsla(0, 0%, 100%, 0.104) 22.5%,
+      hsla(0, 0%, 100%, 0.175) 29%,
+      hsla(0, 0%, 100%, 0.259) 35.3%,
+      hsla(0, 0%, 100%, 0.352) 41.2%,
+      hsla(0, 0%, 100%, 0.450) 47.1%,
+      hsla(0, 0%, 100%, 0.550) 52.9%,
+      hsla(0, 0%, 100%, 0.648) 58.8%,
+      hsla(0, 0%, 100%, 0.741) 64.7%,
+      hsla(0, 0%, 100%, 0.825) 71%,
+      hsla(0, 0%, 100%, 0.896) 77.5%,
+      hsla(0, 0%, 100%, 0.951) 84.5%,
+      hsla(0, 0%, 100%, 0.987) 91.9%,
+      hsl(0, 0%, 100%) 100%
+    );
+  }
+
+  /* 暗色模式渐变 - 使用 --background: 0 0% 4% */
+  :global(.dark) .gradient-scrim {
+    background: linear-gradient(
+      to bottom,
+      hsla(0, 0%, 4%, 0) 0%,
+      hsla(0, 0%, 4%, 0.013) 8.1%,
+      hsla(0, 0%, 4%, 0.049) 15.5%,
+      hsla(0, 0%, 4%, 0.104) 22.5%,
+      hsla(0, 0%, 4%, 0.175) 29%,
+      hsla(0, 0%, 4%, 0.259) 35.3%,
+      hsla(0, 0%, 4%, 0.352) 41.2%,
+      hsla(0, 0%, 4%, 0.450) 47.1%,
+      hsla(0, 0%, 4%, 0.550) 52.9%,
+      hsla(0, 0%, 4%, 0.648) 58.8%,
+      hsla(0, 0%, 4%, 0.741) 64.7%,
+      hsla(0, 0%, 4%, 0.825) 71%,
+      hsla(0, 0%, 4%, 0.896) 77.5%,
+      hsla(0, 0%, 4%, 0.951) 84.5%,
+      hsla(0, 0%, 4%, 0.987) 91.9%,
+      hsl(0, 0%, 4%) 100%
+    );
+  }
+
   /* 侧边栏固定效果 */
   .sidebar-container.fixed {
     position: fixed;
@@ -286,7 +336,7 @@ function calculateReadingTime(content: string) {
           .prose h4[id], 
           .prose h5[id], 
           .prose h6[id]) {
-    scroll-margin-top: 5rem;
+    scroll-margin-top: 6rem;
   }
 </style>
 
@@ -376,9 +426,9 @@ function calculateReadingTime(content: string) {
     
     if (!contentSection) return;
 
-    // 获取内容区域的初始位置
+    // 获取内容区域的初始位置，考虑 -100px 的偏移
     const contentTop = contentSection.getBoundingClientRect().top + window.scrollY;
-    const fixThreshold = contentTop - 40; // 距离顶部 80px 时固定
+    const fixThreshold = contentTop - 20; // 调整阈值以适应新的布局
 
     function handleScroll() {
       const scrollY = window.scrollY;

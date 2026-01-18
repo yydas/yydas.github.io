@@ -58,6 +58,13 @@ function showDay(animate) {
 		if (animate) {
 			document.documentElement.classList.remove("dark");
 			document.getElementById("sun").classList.add("rising");
+			
+			// 动画完成后清除 rising 类并重置 transform
+			setTimeout(() => {
+				const sunElement = document.getElementById("sun");
+				sunElement.classList.remove("rising");
+				sunElement.style.transform = "translate3d(0, 0px, 0)";
+			}, 1000);
 		}
 	}, timeout);
 }
@@ -87,6 +94,13 @@ function showNight(animate) {
 		if (animate) {
 			document.documentElement.classList.add("dark");
 			document.getElementById("moon").classList.add("rising");
+			
+			// 动画完成后清除 rising 类并重置 transform
+			setTimeout(() => {
+				const moonElement = document.getElementById("moon");
+				moonElement.classList.remove("rising");
+				moonElement.style.transform = "translate3d(0, 0px, 0)";
+			}, 1000);
 		}
 	}, timeout);
 }

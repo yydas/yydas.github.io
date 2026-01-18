@@ -75,7 +75,7 @@ const formatter = new Intl.DateTimeFormat("zh-CN", {
             </svg>
           </h2>
           <p class="text-sm text-neutral-600 dark:text-neutral-400">
-            <span>{post.data.description}</span>
+            <span class="line-clamp-2">{post.data.description}</span>
           </p>
           <div class="mt-2.5 text-xs font-medium text-neutral-800 dark:text-neutral-300">
             {formatter.format(new Date(post.data.dateFormatted))}

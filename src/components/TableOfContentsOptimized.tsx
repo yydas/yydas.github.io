@@ -30,22 +30,47 @@ export function TableOfContentsOptimized({ headings }: TableOfContentsProps) {
 
 	// IntersectionObserver 监听标题
 	React.useEffect(() => {
-		const observer = new IntersectionObserver(
-			(entries) => {
-				entries.forEach((entry) => {
-					if (entry.isIntersecting) {
-						setActiveId(entry.target.id);
-					}
-				});
-			},
-			{
-				rootMargin: "-10% 0px -85% 0px",
-				threshold: 0,
-			},
+		const headingElements = Array.from(
+			document.querySelectorAll<HTMLElement>(
+				"h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]",
+			),
 		);
 
-		const headingElements = document.querySelectorAll<HTMLElement>(
-			"h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]",
+		const observer = new IntersectionObserver(
+			(entries) => {
+				// 收集所有可见的标题
+				const visibleHeadings = entries
+					.filter((entry) => entry.isIntersecting)
+					.map((entry) => ({
+						id: entry.target.id,
+						top: entry.boundingClientRect.top,
+					}))
+					.sort((a, b) => a.top - b.top);
+
+				// 如果有可见标题，选择最靠近顶部的
+				if (visibleHeadings.length > 0) {
+					setActiveId(visibleHeadings[0].id);
+				} else {
+					// 如果没有可见标题，找到最接近视口顶部的标题
+					const allHeadings = headingElements.map((el) => ({
+						id: el.id,
+						top: el.getBoundingClientRect().top,
+					}));
+
+					// 找到第一个在视口上方的标题（向上滚动的情况）
+					const aboveViewport = allHeadings
+						.filter((h) => h.top < 100)
+						.sort((a, b) => b.top - a.top);
+
+					if (aboveViewport.length > 0) {
+						setActiveId(aboveViewport[0].id);
+					}
+				}
+			},
+			{
+				rootMargin: "-96px 0px -80% 0px",
+				threshold: [0, 0.25, 0.5, 0.75, 1],
+			},
 		);
 
 		headingElements.forEach((element) => observer.observe(element));
@@ -63,10 +88,27 @@ export function TableOfContentsOptimized({ headings }: TableOfContentsProps) {
 		e.preventDefault();
 		const element = document.getElementById(slug);
 		if (element) {
-			element.scrollIntoView({
-				behavior: "smooth",
-				block: "start",
-			});
+			// 获取 Lenis 实例
+			const lenis = (window as any).lenis;
+			
+			if (lenis) {
+				// 使用 Lenis 的 scrollTo 方法，考虑 header 高度偏移
+				const headerOffset = 96; // 调整偏移量以适应新布局
+				const elementPosition = element.getBoundingClientRect().top + window.scrollY;
+				const offsetPosition = elementPosition - headerOffset;
+				
+				lenis.scrollTo(offsetPosition, {
+					duration: 0.8,
+					easing: (t: number) => 1 - Math.pow(1 - t, 3),
+				});
+			} else {
+				// 降级方案：使用原生滚动
+				element.scrollIntoView({
+					behavior: "smooth",
+					block: "start",
+				});
+			}
+			
 			// 更新 URL
 			window.history.pushState(null, "", `#${slug}`);
 		}
