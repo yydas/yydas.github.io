@@ -111,12 +111,14 @@ function calculateReadingTime(content: string) {
         </article>
 
         <!-- Right Sidebar - Table of Contents -->
-        <aside class="hidden xl:block">
-          <div class="sidebar-container p-4 rounded-lg transition-all duration-300 max-h-[calc(100vh-6rem)] overflow-y-auto" id="right-sidebar">
-            <h3 class="text-xs font-semibold mb-4 text-foreground uppercase tracking-wider">页面导航</h3>
-            <TableOfContentsWrapper headings={headings} />
-          </div>
-        </aside>
+        {headings && headings.length > 0 && (
+          <aside class="hidden xl:block">
+            <div class="sidebar-container p-4 rounded-lg transition-all duration-300 max-h-[calc(100vh-6rem)] overflow-y-auto" id="right-sidebar">
+              <h3 class="text-xs font-semibold mb-4 text-foreground uppercase tracking-wider">页面导航</h3>
+              <TableOfContentsWrapper headings={headings} />
+            </div>
+          </aside>
+        )}
       </div>
     </div>
   </main>

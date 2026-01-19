@@ -35,11 +35,11 @@
     --popover-foreground: 0 0% 98%;
     --primary: 0 0% 98%;
     --primary-foreground: 0 0% 9%;
-    --secondary: 0 0% 15%;
+    --secondary: 0 0% 9%;
     --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 15%;
+    --muted: 0 0% 9%;
     --muted-foreground: 0 0% 64%;
-    --accent: 0 0% 15%;
+    --accent: 0 0% 9%;
     --accent-foreground: 0 0% 98%;
     --destructive: 0 63% 31%;
     --destructive-foreground: 0 0% 98%;
@@ -109,7 +109,7 @@ html.lenis body {
     color: hsl(var(--foreground));
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
     font-size: 16px;
-    line-height: 1.5;
+    line-height: 2;
     word-wrap: break-word;
     max-width: none !important;
   }
@@ -149,6 +149,7 @@ html.lenis body {
   /* 强调文本 */
   .prose strong {
     font-weight: 600;
+    color: hsl(var(--foreground));
   }
 
   .prose em {
@@ -209,7 +210,7 @@ html.lenis body {
     margin-top: 24px;
     margin-bottom: 16px;
     font-weight: 600;
-    line-height: 1.25;
+    line-height: 1.5;
     color: hsl(var(--foreground));
   }
 
@@ -246,6 +247,7 @@ html.lenis body {
   .prose p {
     margin-top: 0;
     margin-bottom: 10px;
+    color: hsl(var(--foreground));
   }
 
   /* 引用块 */

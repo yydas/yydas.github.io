@@ -78,7 +78,7 @@ export function PostListOptimized({
 	};
 
 	return (
-		<nav className="space-y-1 px-2">
+		<nav className="space-y-1 p-2">
 			{groupedItems.map(([folder, items]) => (
 				<Collapsible key={folder} defaultOpen={true}>
 					{folder !== "其他" && (
@@ -99,7 +99,7 @@ export function PostListOptimized({
 									key={item.slug}
 									href={itemPath}
 									className={cn(
-										"block px-3 py-2 text-xs rounded-md transition-colors",
+										"block px-3 py-2 text-sm rounded-md transition-colors",
 										"hover:bg-accent hover:text-accent-foreground",
 										active
 											? "bg-accent text-accent-foreground font-semibold"
