@@ -10,15 +10,15 @@ export function initSmoothScroll() {
 
   // 创建 Lenis 实例
   const lenis = new Lenis({
-    duration: 0.5,            // 缩短滚动持续时间，减少拖沓感
-    easing: (t) => 1 - Math.pow(1 - t, 3), // easeOutCubic，更轻快的缓动
+    duration: 0.8,            // 适中的持续时间，平衡流畅度和响应性
+    easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // easeOutExpo，更自然的缓动曲线
     orientation: 'vertical',
     gestureOrientation: 'vertical',
     smoothWheel: true,
-    wheelMultiplier: 1,
+    wheelMultiplier: 1.2,     // 提高滚轮灵敏度
     touchMultiplier: 2,
     infinite: false,
-    lerp: 0.1,                // 线性插值系数，值越大响应越快
+    lerp: 0.12,               // 提高插值系数，响应更快
   })
 
   // 同步 Lenis 和 GSAP ScrollTrigger
@@ -29,8 +29,8 @@ export function initSmoothScroll() {
     lenis.raf(time * 1000)
   })
 
-  // 启用延迟平滑，在帧率波动时提供更平滑的体验
-  gsap.ticker.lagSmoothing(500, 33)
+  // 优化延迟平滑参数，减少卡顿感
+  gsap.ticker.lagSmoothing(0, 0)  // 禁用延迟平滑，避免在低帧率时产生额外延迟
 
   // 将 Lenis 实例挂载到 window 对象，供其他组件使用
   ;(window as any).lenis = lenis
