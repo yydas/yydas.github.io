@@ -93,9 +93,9 @@ function calculateReadingTime(content: string) {
 
     <!-- 内容区域 -->
     <div class="relative z-20 bg-background min-h-screen mt-[-100px]">
-      <div class="grid grid-cols-1 xl:grid-cols-[240px_1fr_240px] gap-8 mx-auto px-4 xl:px-8 py-12 xl:py-16">
+      <div class="grid grid-cols-1 xl:grid-cols-[240px_1fr_240px] gap-8 mx-auto px-4 xl:px-8 py-12 xl:py-16" id="content-grid">
         <!-- Left Sidebar - Post List -->
-        <aside class="hidden xl:block">
+        <aside class="hidden xl:block relative" id="left-sidebar-wrapper">
           <div class="sidebar-container p-4 rounded-lg transition-all duration-300 max-h-[calc(100vh-6rem)] overflow-y-auto" id="left-sidebar">
             <h5 class="text-xs font-semibold mb-4 text-foreground uppercase tracking-wider ml-5">文章目录</h5>
             <PostListWrapper />
@@ -112,7 +112,7 @@ function calculateReadingTime(content: string) {
 
         <!-- Right Sidebar - Table of Contents -->
         {headings && headings.length > 0 && (
-          <aside class="hidden xl:block">
+          <aside class="hidden xl:block relative" id="right-sidebar-wrapper">
             <div class="sidebar-container p-4 rounded-lg transition-all duration-300 max-h-[calc(100vh-6rem)] overflow-y-auto" id="right-sidebar">
               <h3 class="text-xs font-semibold mb-4 text-foreground uppercase tracking-wider">页面导航</h3>
               <TableOfContentsWrapper headings={headings} />
@@ -317,18 +317,39 @@ function calculateReadingTime(content: string) {
   }
 
   /* 侧边栏固定效果 */
+  .sidebar-container {
+    transition: none; /* 移除过渡效果，避免滚动时闪烁 */
+  }
+
   .sidebar-container.fixed {
     position: fixed;
     top: 5rem;
     z-index: 30;
+    max-height: calc(100vh - 8rem);
   }
 
-  #left-sidebar.fixed {
+  /* 侧边栏到达底部时停止固定 */
+  .sidebar-container.stop-at-bottom {
+    position: absolute;
+    bottom: 0;
+    top: auto;
+    z-index: 30;
+  }
+
+  #left-sidebar.fixed,
+  #left-sidebar.stop-at-bottom {
     width: 240px;
   }
 
-  #right-sidebar.fixed {
+  #right-sidebar.fixed,
+  #right-sidebar.stop-at-bottom {
     width: 240px;
+  }
+
+  /* 侧边栏包装器需要足够高度以支持绝对定位 */
+  #left-sidebar-wrapper,
+  #right-sidebar-wrapper {
+    min-height: 100%;
   }
 
   /* Prose 标题滚动偏移 */
@@ -420,41 +441,89 @@ function calculateReadingTime(content: string) {
     initializeDrawer();
   }
 
-  // 侧边栏滚动固定效果
+  // 侧边栏滚动固定效果 - 使用 requestAnimationFrame 优化性能
   function initSidebarScroll() {
     const leftSidebar = document.getElementById('left-sidebar');
     const rightSidebar = document.getElementById('right-sidebar');
+    const leftWrapper = document.getElementById('left-sidebar-wrapper');
+    const rightWrapper = document.getElementById('right-sidebar-wrapper');
     const contentSection = document.querySelector('.bg-background.min-h-screen');
+    const footer = document.querySelector('footer, section.border-t');
     
     if (!contentSection) return;
 
-    // 获取内容区域的初始位置，考虑 -100px 的偏移
+    // 获取内容区域的初始位置
     const contentTop = contentSection.getBoundingClientRect().top + window.scrollY;
-    const fixThreshold = contentTop - 20; // 调整阈值以适应新的布局
+    const fixThreshold = contentTop - 20;
+
+    let ticking = false;
 
     function handleScroll() {
       const scrollY = window.scrollY;
-      const shouldFix = scrollY >= fixThreshold;
+      const windowHeight = window.innerHeight;
       
-      if (leftSidebar) {
-        if (shouldFix) {
-          leftSidebar.classList.add('fixed');
-        } else {
-          leftSidebar.classList.remove('fixed');
+      // 获取 footer 位置
+      let footerTop = document.body.scrollHeight;
+      if (footer) {
+        footerTop = footer.getBoundingClientRect().top + scrollY;
+      }
+      
+      // 处理左侧边栏
+      if (leftSidebar && leftWrapper) {
+        const wrapperRect = leftWrapper.getBoundingClientRect();
+        const wrapperBottom = wrapperRect.bottom + scrollY;
+        const sidebarHeight = leftSidebar.offsetHeight;
+        
+        // 计算侧边栏底部是否会超过 footer
+        const sidebarBottom = scrollY + 80 + sidebarHeight; // 80 = 5rem top
+        const shouldStop = sidebarBottom >= footerTop - 20;
+        
+        leftSidebar.classList.remove('fixed', 'stop-at-bottom');
+        
+        if (scrollY >= fixThreshold) {
+          if (shouldStop) {
+            leftSidebar.classList.add('stop-at-bottom');
+          } else {
+            leftSidebar.classList.add('fixed');
+          }
         }
       }
       
-      if (rightSidebar) {
-        if (shouldFix) {
-          rightSidebar.classList.add('fixed');
-        } else {
-          rightSidebar.classList.remove('fixed');
+      // 处理右侧边栏
+      if (rightSidebar && rightWrapper) {
+        const wrapperRect = rightWrapper.getBoundingClientRect();
+        const wrapperBottom = wrapperRect.bottom + scrollY;
+        const sidebarHeight = rightSidebar.offsetHeight;
+        
+        // 计算侧边栏底部是否会超过 footer
+        const sidebarBottom = scrollY + 80 + sidebarHeight; // 80 = 5rem top
+        const shouldStop = sidebarBottom >= footerTop - 20;
+        
+        rightSidebar.classList.remove('fixed', 'stop-at-bottom');
+        
+        if (scrollY >= fixThreshold) {
+          if (shouldStop) {
+            rightSidebar.classList.add('stop-at-bottom');
+          } else {
+            rightSidebar.classList.add('fixed');
+          }
         }
+      }
+      
+      ticking = false;
+    }
+
+    function requestTick() {
+      if (!ticking) {
+        requestAnimationFrame(handleScroll);
+        ticking = true;
       }
     }
 
-    // 监听滚动事件
-    window.addEventListener('scroll', handleScroll);
+    // 使用 passive 事件监听器提高滚动性能
+    window.addEventListener('scroll', requestTick, { passive: true });
+    // 窗口大小改变时重新计算
+    window.addEventListener('resize', requestTick, { passive: true });
     // 初始检查
     handleScroll();
   }

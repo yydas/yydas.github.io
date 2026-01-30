@@ -80,7 +80,7 @@ export function TableOfContentsOptimized({ headings }: TableOfContentsProps) {
 		};
 	}, []);
 
-	// 平滑滚动到标题
+	// 使用原生平滑滚动到标题
 	const handleClick = (
 		e: React.MouseEvent<HTMLAnchorElement>,
 		slug: string,
@@ -88,26 +88,11 @@ export function TableOfContentsOptimized({ headings }: TableOfContentsProps) {
 		e.preventDefault();
 		const element = document.getElementById(slug);
 		if (element) {
-			// 获取 Lenis 实例
-			const lenis = (window as any).lenis;
-			
-			if (lenis) {
-				// 使用 Lenis 的 scrollTo 方法，考虑 header 高度偏移
-				const headerOffset = 96; // 调整偏移量以适应新布局
-				const elementPosition = element.getBoundingClientRect().top + window.scrollY;
-				const offsetPosition = elementPosition - headerOffset;
-				
-				lenis.scrollTo(offsetPosition, {
-					duration: 0.8,
-					easing: (t: number) => 1 - Math.pow(1 - t, 3),
-				});
-			} else {
-				// 降级方案：使用原生滚动
-				element.scrollIntoView({
-					behavior: "smooth",
-					block: "start",
-				});
-			}
+			// 使用原生滚动，性能更好
+			element.scrollIntoView({
+				behavior: "smooth",
+				block: "start",
+			});
 			
 			// 更新 URL
 			window.history.pushState(null, "", `#${slug}`);

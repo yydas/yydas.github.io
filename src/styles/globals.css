@@ -59,41 +59,13 @@
   }
 }
 
-/* Lenis 平滑滚动样式 */
-html.lenis,
-html.lenis body {
-  height: auto;
+/* 性能优化 - 使用原生滚动提高帧率 */
+html {
+  scroll-behavior: smooth;
 }
 
-.lenis.lenis-smooth {
-  scroll-behavior: auto !important;
-}
-
-.lenis.lenis-smooth [data-lenis-prevent] {
-  overscroll-behavior: contain;
-}
-
-.lenis.lenis-stopped {
-  overflow: hidden;
-}
-
-.lenis.lenis-scrolling iframe {
-  pointer-events: none;
-}
-
-/* GPU 加速优化 - 减少滚动卡顿 */
-.item {
-  will-change: transform;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-}
-
-.item-wrapper {
-  will-change: transform;
-}
-
+/* 仅在必要时使用 GPU 加速，避免过度使用 will-change */
 .item-image img {
-  will-change: transform;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
 }
